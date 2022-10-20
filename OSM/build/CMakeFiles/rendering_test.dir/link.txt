@@ -1,0 +1,1 @@
+/usr/bin/c++  -std=c++11 -O3 -DNDEBUG  -rdynamic CMakeFiles/rendering_test.dir/main.cpp.o  -o rendering_test  -Wl,-rpath,/home/joey/Projects/faster-fdcm/OSM/build:/usr/local/lib libElement.so /usr/local/lib/libGeographicLib.so /usr/local/lib/libGeographicLib.so.23 /usr/local/lib/libGeographicLib.so.23.0.1 

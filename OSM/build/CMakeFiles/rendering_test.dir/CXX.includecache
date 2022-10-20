@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/joey/Projects/faster-fdcm/OSM/Element.h
+iostream
+-
+fstream
+-
+sstream
+-
+vector
+-
+string
+-
+map
+-
+GeographicLib/LocalCartesian.hpp
+-
+opencv4/opencv2/core.hpp
+-
+opencv4/opencv2/calib3d.hpp
+-
+opencv4/opencv2/highgui.hpp
+-
+opencv4/opencv2/imgproc.hpp
+-
+opencv4/opencv2/imgproc/imgproc_c.h
+-
+
+/home/joey/Projects/faster-fdcm/OSM/main.cpp
+Element.h
+/home/joey/Projects/faster-fdcm/OSM/Element.h
+

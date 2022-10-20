@@ -8,6 +8,11 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 
+#include <opencv4/opencv2/core.hpp>
+#include <opencv4/opencv2/calib3d.hpp>
+#include <opencv4/opencv2/highgui.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
+#include <opencv4/opencv2/imgproc/imgproc_c.h>
 
 using namespace cv;
 
@@ -109,4 +114,21 @@ void Body2Cam(Eigen::Matrix<float,4,4> M_transform, Eigen::Vector4d & point_in_b
 {
     point_in_cam = M_transform * point_in_body;
 } 
+
+/**
+ * @brief project point in camera frame to pixel frame, directly using function in OpenCV
+ * @param points_W the coordinates of points in world frame
+ * @param points_P the coordinates of points in image frame
+ * @param intrisicMat the matrix of intrisic parameter of camera
+ * @param distCoeffs the distortion parameters of lens in camera
+ * @param rVec rotation vector 
+ * @param tVec translation vector
+ */
+void World2Pixel(const vector<cv::Point3d> & points_W, vector<cv::Point2d> &points_P, const cv::Mat & intrisicMat, const cv::Mat & distCoeffs, const cv::Mat & rVec, 
+                const cv::Mat & tVec)
+{
+    cv::projectPoints(points_W, rVec, tVec, intrisicMat, distCoeffs, points_P);
+}
+
+
 

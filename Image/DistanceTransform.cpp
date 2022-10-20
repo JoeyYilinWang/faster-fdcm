@@ -84,7 +84,7 @@ void DistanceTransform::Update2DDTCostNN(Image<float> *output,Image<int> *nn)
 			imRef(nn,x,y) = ind[y];
 		}
 		delete [] d;
-	}
+	}                       
 
 
 	// transform along rows
@@ -141,7 +141,7 @@ float* DistanceTransform::Update1DDTCostNN(float *f, const int n, int *ind)
 		v[k] = q;
 		z[k] = s;
 		z[k+1] = INF;
-
+		
 	}
 
 	k = 0;
