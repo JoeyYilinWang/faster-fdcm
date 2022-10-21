@@ -32,7 +32,13 @@ opencv4/opencv2/imgproc.hpp
 opencv4/opencv2/imgproc/imgproc_c.h
 -
 
+/home/joey/Projects/faster-fdcm/OSM/ImageDraw.h
+Element.h
+/home/joey/Projects/faster-fdcm/OSM/Element.h
+
 /home/joey/Projects/faster-fdcm/OSM/main.cpp
 Element.h
 /home/joey/Projects/faster-fdcm/OSM/Element.h
+ImageDraw.h
+/home/joey/Projects/faster-fdcm/OSM/ImageDraw.h
 

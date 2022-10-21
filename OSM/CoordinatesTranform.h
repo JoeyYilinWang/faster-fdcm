@@ -16,6 +16,7 @@
 
 using namespace cv;
 
+// 用于存储经纬坐标的矩阵，用vector来表示
 typedef std::vector<std::vector<double>> dataMat_NxN;
 
 // Read Matrix element from .csv file

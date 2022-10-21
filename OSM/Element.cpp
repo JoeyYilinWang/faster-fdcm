@@ -98,8 +98,20 @@ void nodes::Body2Cam(cv::Matx44f &T)
     }
 }
 
+void nodes::World2Img(const cv::Mat &intrinsicMat, const cv::Mat distCoeffs, const cv::Mat &rVec, const cv::Mat &tVec)
 {
-    cv::projectPoints(points_W, rVec, tVec, intrisicMat, distCoeffs, points_P);
+    vector<cv::Point3d> points_W;
+    for (int i = 0; i < nodes.size(); i++)
+    {
+        cv::Point3d point{nodes[i].E_coord, nodes[i].N_coord, nodes[i].U_coord};
+        points_W.push_back(point);
+    }
+    vector<cv::Point2d> points_P;
+    cv::projectPoints(points_W, rVec, tVec, intrinsicMat, distCoeffs, points_P);
+    for (int i = 0; i < points_P.size(); i++)
+    {
+        nodes[i].point_P = points_P[i];
+    }
 }
 
 nodes::~nodes()

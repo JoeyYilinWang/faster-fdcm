@@ -1,4 +1,5 @@
 #include "Element.h"
+#include "ImageDraw.h"
 // test OSM nodes rendering unit
 int main(int argc,char *argv[])
 {

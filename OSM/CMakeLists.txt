@@ -6,15 +6,15 @@ set(CMAKE_CXX_FLAGS "-std=c++11")
 
 set(GeographicLib_INCLUDE_DIRS "/usr/local/include/GeographicLib")
 
-list(APPEND LINK_LIBS
+find_package(OpenCV REQUIRED)
 
+list(APPEND LINK_LIBS
 ${OpenCV_LIBS}
 /usr/local/lib/libGeographicLib.so
 /usr/local/lib/libGeographicLib.so.23
 /usr/local/lib/libGeographicLib.so.23.0.1)
 
-find_package(OpenCV REQUIRED)
-include_directories("/usr/include/opencv4/")
+message("OpenCV is included in " ${OpenCV_INCLUDE_DIRS})
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 add_library(Element SHARED Element.cpp)
