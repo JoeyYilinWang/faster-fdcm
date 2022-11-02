@@ -19,6 +19,7 @@ void DrawContours(cv::Mat binImage, int w, int h, vector<cv::Point2d> points_P)
     cv::waitKey();
 }
 
+
 /**
  * @brief draw nodes on image
  * @param binImage grey image
@@ -34,9 +35,9 @@ void DrawNodes(cv::Mat &binImage, int w, int h, nodes &Nodes)
     {
         cv::circle(binImage, Nodes.nodes[i].point_P, 1, cv::Scalar::all(255), CV_FILLED);
     }
-    // cv::namedWindow("binImage", cv::WINDOW_NORMAL);
-    // cv::imshow("binImage", binImage);
-    // cv::waitKey();
+    cv::namedWindow("binImage", cv::WINDOW_NORMAL);
+    cv::imshow("binImage", binImage);
+    cv::waitKey();
 }
 
 
@@ -68,6 +69,7 @@ void DrawLineOfLink(cv::Mat &binImage, link &Link, nodes &Nodes)
     Node2 = Nodes.nodes[Node2_id];
     DrawLineOfTwoNodes(binImage, Node1, Node2);
 }
+
 
 /**
  * @brief draw lines based on links

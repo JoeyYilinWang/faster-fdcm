@@ -33,6 +33,7 @@ struct node
     double y_cam;
     double z_cam;
     cv::Point2d point_P;
+    cv::Vec3d point_NED;
     ~node();
 };
 
@@ -45,8 +46,10 @@ class nodes
     void LongLatHeight2ENU(vector<double> &Origin_ENU);
     void LongLatHeight2ENU();
     void ENU2Body(cv::Matx33f &Rotate);
+    void ENU2NED();
     void Body2Cam(cv::Matx44f &T);
     void World2Img(const cv::Mat &intrinsicMat, const cv::Mat distCoeffs, const cv::Mat &rVec, const cv::Mat &tVec);
+    void AppendZcoord(double &z);
 
     ~nodes();
 };

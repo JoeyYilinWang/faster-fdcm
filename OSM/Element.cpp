@@ -86,6 +86,17 @@ void nodes::ENU2Body(cv::Matx33f &Rotate)
     }
 }
 
+void nodes::ENU2NED()
+{
+    cv::Matx33f R(0, 1, 0, 1, 0, 0, 0, 0, -1);
+    for (int i = 0; i < nodes.size(); i++)
+    {
+        cv::Vec3d pointENU = {nodes[i].E_coord, nodes[i].N_coord, nodes[i].U_coord};
+        cv::Vec3d pointNED = R * pointENU;
+        nodes[i].point_NED = pointNED;
+    }
+}
+
 void nodes::Body2Cam(cv::Matx44f &T)
 {
     for (int i = 0; i < nodes.size(); i++)
@@ -103,7 +114,8 @@ void nodes::World2Img(const cv::Mat &intrinsicMat, const cv::Mat distCoeffs, con
     vector<cv::Point3d> points_W;
     for (int i = 0; i < nodes.size(); i++)
     {
-        cv::Point3d point{nodes[i].E_coord, nodes[i].N_coord, nodes[i].U_coord};
+        // regard NED coordinates as World coordinates.
+        cv::Point3d point{nodes[i].point_NED[0], nodes[i].point_NED[1], nodes[i].point_NED[2]};
         points_W.push_back(point);
     }
     vector<cv::Point2d> points_P;
@@ -111,6 +123,15 @@ void nodes::World2Img(const cv::Mat &intrinsicMat, const cv::Mat distCoeffs, con
     for (int i = 0; i < points_P.size(); i++)
     {
         nodes[i].point_P = points_P[i];
+    }
+}
+
+void nodes::AppendZcoord(double &z)
+{
+    int size = nodes.size();
+    for (int i = 0; i < size; i++)
+    {
+        nodes[i].z_coord = z;
     }
 }
 
@@ -185,11 +206,3 @@ void findLinkToNodeCoord(link &Link, nodes &Nodes, pair<double, double> &coord)
     coord = make_pair(x_coord, y_coord);
 }
 
-void AppendZcoord(nodes &Nodes, double &z)
-{
-    int size = Nodes.nodes.size();
-    for (int i = 0; i < size; i++)
-    {
-        Nodes.nodes[i].z_coord = z;
-    }
-}
