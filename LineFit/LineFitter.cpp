@@ -2,10 +2,10 @@
 
 LFLineFitter::LFLineFitter()
 {
-	localWindSize_ = 50; //局部滑窗尺寸
+	localWindSize_ = 50; //using local window size
 	smallLocalWindowSize_ = max(localWindSize_ / 10, 5); // why should we define a small local window size?
 	nMinEdges_ = 5;
-	nMaxWindPoints_ = 4 * (localWindSize_ + 1) * (localWindSize_ + 1); //最大窗口点的数量，默认为4*51*51
+	nMaxWindPoints_ = 4 * (localWindSize_ + 1) * (localWindSize_ + 1); //maximum num of points，默认为4*51*51
 	minLength_ = 2;
 
 	nLinesToFitInStage_[0] = 300;
@@ -350,7 +350,7 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
 		j++;
 	}
 	nProposedKillingList = j;
-
+    
 	ls.normal_ = lnormal;
 }
 
@@ -360,7 +360,7 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
  * @param nWindPoints the number of edge points in small window 
  * @param sigmaFitALine
  * @param lnormal line normal
- * @return  the score of fit best line 
+ * @return the score of fit best line 
  */
 int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const double sigmaFitALine, Point<double> &lnormal)
 {
@@ -376,7 +376,7 @@ int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const 
 	int bestscore = -1;
 	Point<double> cdirection, cnormal;
 
-	while (i < nMaxTry) //使用ransac算法进行直线段拟合
+	while (i < nMaxTry) // using ransac algorithm to fit a line.
 	{
 		index = (int)floor(rand() / (double)RAND_MAX * (double)nWindPoints); // radomly pick one point every loop 
 		norm = sqrt(1.0 * windPoints[index].x * windPoints[index].x + windPoints[index].y * windPoints[index].y); 
@@ -424,7 +424,9 @@ int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const 
 	return bestscore;
 }
 
-
+/**
+ * @brief find the best line based 
+ */
 void LFLineFitter::Find(int x0, int y0, Point<int> *windPoints, int &nWindPoints, Image<unsigned char> *inputImage, int localWindSize)
 {
 	int x, y;
@@ -518,7 +520,7 @@ void LFLineFitter::Configure(const char *filename)
 		{
 			found = line.find(column);
 			string substring = line.substr(found + 1, line.length() - found).c_str();
-			sigmaFitALine_ = atof(substring.c_str()); //把字符串转化为浮点数
+			sigmaFitALine_ = atof(substring.c_str()); //change string to float
 		}
 		else if (string::npos != line.find("SIGMA_FIND_SUPPORT"))
 		{
