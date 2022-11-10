@@ -59,7 +59,7 @@ int main(int argc,char *argv[])
         cout << Nodes.nodes[i].point_NED << endl;
     }
     // Nodes.World2Img(intrisicMat, distCoeffs, rVec, tVec);
-
+    
     // for (int i = 0; i < 3; i++)
     // {
     //     cout << Nodes.nodes[i].point_P << endl;
