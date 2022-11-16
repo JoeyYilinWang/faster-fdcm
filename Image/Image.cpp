@@ -14,12 +14,12 @@ Image<T>::Image(const int width, const int height, const bool init)
 {
 	w = width;
 	h = height;
-	data = new T[w * h];  // allocate space for Image data
-	access = new T*[h];   // allocate space for row pointers
+	data = new T[w * h];  // allocate space for Image data, using 1d array
+	access = new T*[h];   // allocate space for row pointers 
 
 	// initialize row pointers
 	for (int i = 0; i < h; i++)
-		access[i] = data + (i * w);  
+		access[i] = data + (i * w);  // using 2d array to access 1d array element
 
 	if (init)
 		memset(data, 0, w * h * sizeof(T)); // initialize image with 0 value
@@ -49,7 +49,7 @@ void Image<T>::Resize(const int width, const int height, const bool init)
 template <class T>
 void Image<T>::Init(const T &val) 
 {
-	T *ptr = imPtr(this, 0, 0);
+	T *ptr = imPtr(this, 0, 0); // access 
 	T *end = imPtr(this, w-1, h-1);
 	while (ptr <= end)
 		*ptr++ = val;
@@ -75,7 +75,7 @@ Image<T> *Image<T>::Copy() const
 	memcpy(im->data, data, w * h * sizeof(T));
 	return im;
 }
-
+																									
 template <class T>
 Image<T>::~Image() 
 {

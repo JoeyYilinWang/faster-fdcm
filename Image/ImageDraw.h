@@ -88,7 +88,7 @@ inline void ImageDraw<T>::Line(Image<T> *im,int sx,int sy,int ex,int ey,const T 
 
 			if(ey>sy)
 			{
-				for (int i=sy ; i<=ey;i++)
+				for (int i=sy ; i<=ey; i++)
 				{
 					count++;
 					x = sx+(int)ceil(count*ds-0.5);

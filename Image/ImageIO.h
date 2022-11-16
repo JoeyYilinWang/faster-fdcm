@@ -93,6 +93,7 @@ void ImageIO::pnm_read(std::ifstream &file, char *buf)
 	file.ignore(); //为默认参数，.gnore(1, EOF)，其意义为将最后一个字符删除掉
 }
 
+// 读取PBM格式的文件，并将其转化为Image<uchar>格式
 Image<uchar> *ImageIO::LoadPBM(const char *name) 
 {
 	char buf[BUF_SIZE];
@@ -126,6 +127,7 @@ void ImageIO::SavePBM(Image<uchar> *im, const char *name)
 		write_packed(imPtr(im, 0, i), width, file);
 }
 
+// 读取PGM格式文件，并将其转化为Image<uchar>格式
 Image<uchar> *ImageIO::LoadPGM(const char *name) 
 {
 	char buf[BUF_SIZE];
@@ -162,6 +164,7 @@ void ImageIO::SavePGM(Image<uchar> *im, const char *name)
 	file.write((char *)imPtr(im, 0, 0), width * height * sizeof(uchar));
 }
 
+// 读取PPM格式文件，并将其转化为Image<RGBMap>格式
 Image<RGBMap> *ImageIO::LoadPPM(const char *name) 
 {
 	char buf[BUF_SIZE];
@@ -197,6 +200,7 @@ void ImageIO::SavePPM(Image<RGBMap> *im, const char *name)
 	file << "P6\n" << width << " " << height << "\n" << UCHAR_MAX << "\n";
 	file.write((char *)imPtr(im, 0, 0), width * height * sizeof(RGBMap));
 }
+
 template <class T>
 void ImageIO::LoadImage(Image<T> **im, const char *name) 
 {

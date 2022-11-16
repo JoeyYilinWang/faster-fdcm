@@ -51,7 +51,6 @@ class Image
 
 	inline void Resize(const int width,const int height, const bool init = true);
 
-
 	/* init an Image */
 	inline void Init(const T &val);
 
@@ -66,7 +65,7 @@ class Image
 	
 	// returning a reference to the parituclar location.
 	inline T& Access(int x,int y) {return access[y][x];};
-
+	
 
 	/* Image data. */
 	T *data;

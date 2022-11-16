@@ -11,28 +11,15 @@ void DistanceTransform::CompDT(const Image<uchar> *input,Image<float> *output,bo
 	int imageWidth = input->width();
 	int imageHeight = input->height();
 
-	// Initialize distance transform value
-	//for (int k = 0; k < imageHeight*imageWidth; k++) 
-	//{
-	//	if( cvGetReal1D(input,k) == on )
-	//	{
-	//		cvSetReal1D( output, k, 0);
-	//		//cvSet2D( output, y, x, cvScalar( 0 ) );
-	//	}
-	//	else
-	//	{
-	//		cvSetReal1D( output, k, INF);
-	//		//cvSet2D( output, y, x, cvScalar( INF ) );
-	//	}	
-	//}
-
 	for(int y=0;y<imageHeight;y++)
 	{
 		for(int x=0;x<imageWidth;x++)
-		{
+		{	
+			// each pixel location on input image can only be assigned 255 or 0, just a label
 			if( imRef(input,x,y) == on )
+				// the same pixel location on output image as input image can only be assigned 0 if the same pixel location on input image is assigned "on"
 				imRef(output,x,y) = 0;
-			else
+			else // otherwise, to be assigned INF
 				imRef(output,x,y) = INF;
 		}
 	}
@@ -178,7 +165,6 @@ void DistanceTransform::Update2DDTCost(Image<float> *output)
 	{
 		for (int y = 0; y < imageHeight; y++) 
 		{
-			//f[ y ] = (double)cvGetReal2D( output, y, x);
 			f[y] = imRef(output,x,y);
 		}
 		float *d = Update1DDTCost(f, imageHeight);

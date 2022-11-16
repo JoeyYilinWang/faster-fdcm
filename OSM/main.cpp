@@ -37,9 +37,7 @@ int main(int argc,char *argv[])
  
     cv::Mat tVec(3, 1, cv::DataType<float>::type); // Translation vector
     tVec.at<float>(0) = 2.1158489381208221e+000;
-    tVec.at<float>(1) = -7.6847683212704716e+000;
-    tVec.at<float>(2) = 2.6169795190294256e+001;
- 
+    tVec.at<float>(1) = -7.6847683212704716e+000; 
     cv::Mat distCoeffs(5, 1, cv::DataType<float>::type);   // Distortion vector
     distCoeffs.at<float>(0) = -7.9134632415085826e-001;
     distCoeffs.at<float>(1) = 1.5623584435644169e+000;

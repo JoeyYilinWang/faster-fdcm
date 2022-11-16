@@ -9,7 +9,9 @@ using namespace std;
 
 #define INF 1e10
 
-template <class T> inline T square(const T &x) { return x*x; };
+// define template class to compute square of x
+template <class T> 
+inline T square(const T &x) { return x*x; };
 
 //
 // The distance transform result is the same as the result computed with MATLAB. 
@@ -18,7 +20,9 @@ template <class T> inline T square(const T &x) { return x*x; };
 class DistanceTransform
 {
 public:
-	static void CompDT(const Image<uchar> *input,Image<float> *output,bool onEqualOne=true,Image<int> *nn=NULL);
+	// 输入图像中各像素保存的值是unsigned char，不是RGBMap。
+	// 输出有两个，一个是保存各像素与最近边的距离值，一个是保存各像素与最近边上像素的索引
+	static void CompDT(const Image<uchar> *input, Image<float> *output, bool onEqualOne=true, Image<int> *nn=NULL);
 
 private:
 
