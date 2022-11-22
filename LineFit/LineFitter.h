@@ -29,10 +29,13 @@ public:
 	// configuration and initialization
 	void Init();
 	void PrintParameter();
+
+	// through configure file 
 	void Configure(const char *filename);
+	// directly give parameters
 	void Configure(double sigmaFitALine,double sigmaFindSupport,double maxGap,int nLayer,int *nLinesToFitInStage,int *nTrialsPerLineInStage);
 
-
+	
 	void FitLine(Image<uchar> *inputImage);
 
 	

@@ -61,7 +61,7 @@ void LFLineFitter::SafeRelease()
 
 void LFLineFitter::Init()
 {
-	outEdgeMap_ = new LineSegment[nLinesToFitInStage_[0] + nLinesToFitInStage_[1]]; //一共300+3000=3300个直线段
+	outEdgeMap_ = new LFLineSegment[nLinesToFitInStage_[0] + nLinesToFitInStage_[1]]; //一共300+3000=3300个直线段
 	rpoints_ = new Point<int>[nMaxWindPoints_];
 	rProjection_ = new double[nMaxWindPoints_];
 	absRProjection_ = new double[nMaxWindPoints_];
@@ -89,7 +89,7 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 	int width, height;
 	int index = 0;
 	int nPixels = 0;
-	int nEdges = 0;
+	int nEdges = 0; // 表示边缘像素点个数
 	int maxSupport = 0;
 	LFLineSegment tmpLs, bestLs; //全称为temporary lines与best lines
 	Point<double> lnormal;
@@ -103,14 +103,17 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 	height = inputImage->height();
 	nPixels = width * height;
 
+	// edgeMap保存边缘像素点，nEdges统计所有边缘像素点的数量
 	for (int y = 0; y < height; y++)
 	{
 		for (int x = 0; x < width; x++)
 		{
 			i = x + y * width;
 			// if(cvGetReal1D(inputImage,i)!=0)
+			// 被边缘覆盖的部分的像素位置上的值是不为0的
 			if (imRef(inputImage, x, y) != 0)
 			{
+				// edgeMap利用Map数据结构保存了所有输入图像的所有边缘点信息，每个元素都是一个pair结构，key为经换算得到的图像像素位置，value为图像像素位置
 				edgeMap.insert(pair<int, Point<int>>(i, Point<int>(x, y))); // i并不是序数，而是图像上的像素位置被换算罢了
 				nEdges++;
 			}
@@ -120,27 +123,36 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 
 	nInputEdges_ = nEdges;
 	nLineSegments_ = 0;
+
+	// 分为2个阶段去拟合直线段
 	for (k = 0; k < 2; k++)
 	{
+		// 这种情况一般不会出现，因为输入图像的边缘像素点个数不可能小于5
 		if (nEdges < nMinEdges_)
 			break;
+		// 不同阶段拟合的直线段数量不同
+		// 一共两个阶段，第一阶段拟合300条，第二阶段拟合3000条
 		for (i = 0; i < nLinesToFitInStage_[k]; i++)
 		{
 			maxSupport = 0;
+			// 寻找一条拟合最好的直线段，每个阶段拟合次数不同，第一阶段是300次，第二阶段是1次
+			// 之所以这么设置，是因为大部分直线段都需要在第一阶段准确拟合，第二阶段之所以仅需要一次是因为剩余边缘点不足，过多的拟合次数会造成浪费。
 			for (j = 0; j < nTrialsPerLineInStage_[k]; j++)
 			{
-				// Sample a point
+				// Sample a point, 返回被挑选点的像素位置索引，是一个整数， 但实际上该函数只有第一个参数才被用到，后面两个都是没用的
 				index = SampleAPixel(&edgeMap, inputImage, nPixels);
+				
+				// 恢复被选择像素的位置
 				y0 = index / width;
 				x0 = index - y0 * width;
 
-				// Locate the subwindow
+				// 定位子窗口，这里使用较小的局部窗口大小，该函数的实际目的是取得较小局部窗口中边缘点的相对坐标
 				Find(x0, y0, windPoints, nWindPoints, inputImage, smallLocalWindowSize_); //smallLocalWindowSize_比localWindSize_更小一点
 				
-				// Infer a line direction
+				// 对较小的局部窗口中的边缘点进行直线段拟合
 				FitALine(nWindPoints, windPoints, sigmaFitALine_, lnormal);
 
-				// Locate the subwindow
+				// Locate the subwindow，该函数的实际目的是获取局部窗口中边缘点的相对坐标
 				Find(&edgeMap, x0, y0, windPoints, nWindPoints, inputImage, localWindSize_);
 
 				// Find the support
@@ -156,7 +168,7 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 				}
 			}
 
-			// Remove points
+			// 在每一轮的直线拟合之后，需要把相应的点删掉，这里删掉是指将对应像素位置上的值赋为0
 			for (j = 0; j < maxSupport; j++)
 			{
 				// cvSetReal2D(inputImage,waitingKillingList[j].y,waitingKillingList[j].x,0.0);
@@ -167,11 +179,15 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 			bestLs.len_ = sqrt((bestLs.sx_ - bestLs.ex_) * (bestLs.sx_ - bestLs.ex_) + (bestLs.sy_ - bestLs.ey_) * (bestLs.sy_ - bestLs.ey_));
 			outEdgeMap_[nLineSegments_] = bestLs;
 			nLineSegments_++;
-
+			
+			// 当丢弃多余点之后，如果剩余点数量小于nMinEdges则退出循环。
+			// 其意义在于如果在拟合过程中，剩余点过少了，则后面就没必要拟合了。
 			if (nEdges < nMinEdges_)
 				break;
 		}
 	}
+
+	// 将直线段按照长度降序排列
 	MMFunctions::Sort(outEdgeMap_, nLineSegments_, 0);
 	delete[] windPoints;
 	delete[] waitingKillingList;
@@ -265,6 +281,17 @@ void LFLineFitter::DisplayEdgeMap(Image<uchar> *inputImage, const char *outputIm
 }
 
 
+/**
+ * @brief find support of linesegment
+ * @param nWindPoints 局部窗口上中所有边缘点的数量
+ * @param windPoints 局部窗口中的所有边缘点
+ * @param lnormal 通过smalllocalwindow计算出的法向量
+ * @param sigmaFindSupport 形成直线段的最大支持
+ * @param proposedKillingList 将被丢弃的边缘点
+ * @param nProposedKillingList 将被丢弃边缘点的个数
+ * @param x0 局部窗口左上角像素在整张图像的像素横坐标
+ * @param y0 局部窗口左上角像素在整张图像的像素纵坐标
+ */
 void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Point<double> &lnormal,
 							   double sigmaFindSupport, double maxGap, LFLineSegment &ls,
 							   Point<int> *proposedKillingList, int &nProposedKillingList, int x0, int y0)
@@ -278,16 +305,22 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
 	// Find the point within the threshold by taking dot product
 	for (i = 0; i < nWindPoints; i++)
 	{
+		// lnormal是通过smallLocalWindow内部的边缘点计算出来的
+		// 计算LocalWindow中所有边缘点与通过lnormal的内积，其值越小则表示以x0，y0为起点，当前边缘点为终点的直线段与lnormal越垂直
+		// 因为LocalWindow与small都是以x0,y0为原点建立局部坐标系，所以这样计算残差是合理且正确的
 		residuals = abs(windPoints[i].x * lnormal.x + windPoints[i].y * lnormal.y);
 		if (residuals < sigmaFindSupport)
 		{
+			// rpoints保存着复合上述条件的边缘点
 			rpoints_[nRindices] = windPoints[i];
 			nRindices++;
 		}
 	}
+
 	ldirection.x = -lnormal.y; //change back to line direction
 	ldirection.y = lnormal.x;
 
+	// minLength设置为2，算很小的阈值了
 	if (nRindices < minLength_) // if the support number of points is less than minLenth_, 
 	{
 		ls.nSupport_ = -1; // then give up and return. 
@@ -297,11 +330,12 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
 	// Project to the line
 	for (i = 0; i < nRindices; i++)
 	{
-		rProjection_[i] = rpoints_[i].x * ldirection.x + rpoints_[i].y * ldirection.y; // project the supporting points onto line
-		idx_[i] = i;
+		// 将supporting points向方向向量投影，得到距离
+		rProjection_[i] = rpoints_[i].x * ldirection.x + rpoints_[i].y * ldirection.y; 
+		idx_[i] = i; 
 	}
 
-	// Sort the projection and find the starting and ending points
+	// 根据投影距离对rProjection、idx_里的元素升序排列
 	MMFunctions::ISort(rProjection_, nRindices, idx_);
 
 	for (i = 0; i < nRindices; i++)
@@ -309,6 +343,9 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
 
 	for (i = 0; i < nRindices; i++)
 	{
+		// 只有方向向量与被检测边缘点形成向量垂直或者被检测边缘点形成向量是0向量时才会出现此状况。
+		// 但第一种情形并不会出现，因为前面已经通过法向量滤除大部分边缘点了，现在留下的都是方向一致的边缘点
+		// 只能是第二种情形才出现
 		if (absRProjection_[i] == 0)
 		{
 			zeroIndex = i;
@@ -316,9 +353,11 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
 		}
 	}
 
+	// 向右拟合
 	int maxIndex = nRindices - 1;
 	for (i = zeroIndex; i < (nRindices - 1); i++)
 	{
+		// 这个保证要被拟合成直线段边缘点的连续性
 		if ((rProjection_[i + 1] - rProjection_[i]) > maxGap)
 		{
 			maxIndex = i;
@@ -326,6 +365,7 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
 		}
 	}
 
+	// 向左拟合
 	int minIndex = 0;
 	for (i = zeroIndex; i > 0; i--)
 	{
@@ -336,19 +376,23 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
 		}
 	}
 
+	// 计算出根据lnormal拟合的边缘点数量作为直线段拟合的最大支持
 	ls.nSupport_ = maxIndex - minIndex + 1;
+	// 以最左侧点和最右侧点分别作为该直线段的起点和终点，并恢复其在inputImage上的绝对坐标
 	ls.sx_ = (double)rpoints_[idx_[minIndex]].x + x0;
 	ls.sy_ = (double)rpoints_[idx_[minIndex]].y + y0;
 	ls.ex_ = (double)rpoints_[idx_[maxIndex]].x + x0;
 	ls.ey_ = (double)rpoints_[idx_[maxIndex]].y + y0;
 
 	j = 0;
+	// 由于已经通过起点和终点定义直线段了，那么中间的边缘点就可以被丢弃了
 	for (i = minIndex; i <= maxIndex; i++)
-	{
+	{	
 		proposedKillingList[j].x = rpoints_[idx_[i]].x + x0;
 		proposedKillingList[j].y = rpoints_[idx_[i]].y + y0;
 		j++;
 	}
+
 	nProposedKillingList = j;
 
 	ls.normal_ = lnormal;
@@ -359,15 +403,19 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
  * @param WindPoints edge points in small window 
  * @param nWindPoints the number of edge points in small window 
  * @param sigmaFitALine
- * @param lnormal line normal
+ * @param lnormal the normal of line 
  * @return  the score of fit best line 
  */
 int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const double sigmaFitALine, Point<double> &lnormal)
 {
+	// RANSAC algorithm parameter
 	double inlierRatio = 0.9;
 	double outlierRatio = 0.9;
 	double gamma = 0.05;
+
+	// RANSAC的每一轮尝试次数都是计算出来的
 	int nMaxTry = 29; // ceil(log(0.05)/log(0.9))
+
 
 	int i = 0, j = 0, index = 0;
 	int cscore;
@@ -390,9 +438,12 @@ int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const 
 			cnormal.y = cdirection.x; 
 
 			cscore = 0;
+
+			// 对局部窗口中的所有边缘点进行遍历，计算内点的数量
 			for (j = 0; j < nWindPoints; j++) // loop on entire edge point in local window 
 			{
 				//tmpScore = abs(winPoints[j].x * (-windPoint[index].y / norm) + windPoints[j].y * windPoint[index].x / norm)	
+				// 这里使用利用向量点乘判断两向量是否垂直的思想
 				tmpScore = abs(windPoints[j].x * cnormal.x + windPoints[j].y * cnormal.y);
 				if (tmpScore < sigmaFitALine)
 					cscore++; // inliner points counter
@@ -424,18 +475,23 @@ int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const 
 	return bestscore;
 }
 
-
+// 该函数还有一个重载版本，但功能与该版本完全相同。
+// 唯一不同在于遍历方式不同，该版本是对窗口内的所有像素位置进行遍历，根据遍历像素位置上的值来判断是否是边缘点，满足边缘点条件后再进行处理
+// 而被重载的版本则是直接使用edgeMap进行遍历，因此并不需要判断。
 void LFLineFitter::Find(int x0, int y0, Point<int> *windPoints, int &nWindPoints, Image<unsigned char> *inputImage, int localWindSize)
 {
 	int x, y;
 	nWindPoints = 0;
 
+	// 在一个小窗口内循环
 	for (y = max(y0 - localWindSize, 0); y < min(y0 + localWindSize, inputImage->height()); y++)
 		for (x = max(x0 - localWindSize, 0); x < min(x0 + localWindSize, inputImage->width()); x++)
 		{
 			// if(cvGetReal2D(inputImage,y,x)!=0)
+			// 这里再次判断该像素点是否是边缘点，实际上该函数被调用之前，调用函数已经挑选出边缘点了。
 			if (imRef(inputImage, x, y) != 0)
 			{
+				// windPoints中保存的像素位置是一个相对位置，原点是local window的左上方
 				windPoints[nWindPoints].x = x - x0;
 				windPoints[nWindPoints].y = y - y0;
 				nWindPoints++;
@@ -456,6 +512,7 @@ void LFLineFitter::Find(int x0, int y0, Point<int> *windPoints, int &nWindPoints
  */
 void LFLineFitter::Find(map<int, Point<int>> *edgeMap, int x0, int y0, Point<int> *windPoints, int &nWindPoints, Image<unsigned char> *inputImage, int localWindSize)
 {
+	// 重新赋值
 	nWindPoints = 0;
 	map<int, Point<int>>::iterator it;
 

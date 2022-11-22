@@ -188,6 +188,12 @@ template <typename T> void MMFunctions::ISort_Descending(T* ra, int nVec, int* i
    }
 }
 
+/**
+ * @brief 升序排列
+ * @param ra <T> 储存排序的依据
+ * @param nVec <int> list中元素的数量
+ * @param ira <int*> list储存索引
+ */
 template <typename T> void MMFunctions::ISort_Ascending(T* ra, int nVec, int* ira)
 {
    unsigned long n, l, ir, i, j;
@@ -197,7 +203,7 @@ template <typename T> void MMFunctions::ISort_Ascending(T* ra, int nVec, int* ir
    
    if (n<2)
       return;
-   l = (n>>1)+1;
+   l = (n>>1)+1; // 完成除以2取整+1的操作
    ir = n;
    for (;;)
    {

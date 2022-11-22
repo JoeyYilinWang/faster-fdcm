@@ -73,19 +73,19 @@ void LMLineMatcher::Match(LFLineFitter &lf,vector<LMDetWind> &detWind)
 	////QueryPerformanceCounter(&t1);
 
 	double minCost = 1e+10;
-	
+
 	// mathcing
 	int counter = 0;
 	for (int i=0 ; i<ndbImages_ ; i++)
 	{		
 		MatchBruteForce(dbImages_[i], i, iindices, indices, xIndices, yIndices, dIndices, sIndices, distances, counter, minCost);		
-	}
+	} 
 
 	////QueryPerformanceCounter(&t2);
 	//std::cout<<"Fast Directional Chamfer Matching Time "<<setiosflags(ios::fixed)<<setprecision(6)<<(t2.QuadPart - t1.QuadPart)/(1.0*f.QuadPart)<<std::endl;	
 
 	MMFunctions::ISort(distances, counter, iindices);
-
+	
 	// Compute the best hypothesis
 	LMDetWind wind;
 	wind.x_ = (int)ceil(xIndices[iindices[0]]/scale_-0.5);
