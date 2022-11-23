@@ -1,3 +1,23 @@
+/*
+Copyright 2022, Yi-Lin Wang
+All Rights Reserved 
+Permission to use, copy, modify, and distribute this software and 
+its documentation for any non-commercial purpose is hereby granted 
+without fee, provided that the above copyright notice appear in 
+all copies and that both that copyright notice and this permission 
+notice appear in supporting documentation, and that the name of 
+the author not be used in advertising or publicity pertaining to 
+distribution of the software without specific, written prior 
+permission. 
+THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+ANY PARTICULAR PURPOSE. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR 
+ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES 
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN 
+AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING 
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
+*/
+
 #include "Image/Image.h"
 #include "Image/ImageIO.h"
 #include "LineFit/LineFitter.h"
@@ -23,7 +43,7 @@ void main(int argc, char *argv[])
 	// 定义匹配对象
 	LMLineMatcher lm;
 
-	// 直线段拟合对象读取直线段拟合配置文件
+	// 直线段拟合对象读取直线段拟合配置文件，也可以通过该函数的重载版本直接传参
 	lf.Configure("para_line_fitter.txt");
 	// line matcher的配置文件
 	lm.Configure("para_line_matcher.txt");

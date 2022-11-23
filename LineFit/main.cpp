@@ -21,7 +21,7 @@ void main(int argc, char *argv[])
 		std::cerr<<"[Syntax] fitline   input_edgeMap.pgm   output_line.txt   output_edgeMap.pgm"<<std::endl;
 		exit(0);
 	}
-
+	
 	string imageName(argv[1]);
 	string outFilename(argv[2]);
 	string outputImageName(argv[3]);

@@ -5,7 +5,7 @@ int main(int argc,char *argv[])
 {
     nodes Nodes;
     vector<vector<string>> data;
-
+    
     // test if nodes object function correctly, test correctly
     Nodes.ReadFromCSV("/home/joey/Projects/OSM_Analysis/output/node.csv", data);
     Nodes.Extract(data);
