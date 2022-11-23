@@ -1,6 +1,11 @@
 #include "Element.h"
 using namespace std;
 
+/**
+ * @brief 从CSV文件读取元素存储到data vector中
+ * @param str_csv_file CSV文件，保存着OSM相应元素信息
+ * @param data {output, vector<vector<string>> &}保存着从CSV文件中解析的数据
+ */
 void nodes::ReadFromCSV(string str_csv_file, vector<vector<string>> & data)
 {
     ifstream in_file(str_csv_file, std::ios::in);
@@ -18,6 +23,10 @@ void nodes::ReadFromCSV(string str_csv_file, vector<vector<string>> & data)
     }
 }
 
+/**
+ * @brief 将解析后的数据赋值填充给node对象
+ * @param data {vector<vector<string>> &} 保存着从CSV文件中解析的数据
+ */
 void nodes::Extract(vector<vector<string>> & data)
 {
     nodes.clear();
@@ -33,6 +42,10 @@ void nodes::Extract(vector<vector<string>> & data)
     }
 }
 
+/**
+ * @brief 经纬度坐标转化为ENU坐标
+ * @param {vector<double> &} Origin_ENU
+ */
 void nodes::LongLatHeight2ENU(vector<double> &Origin_ENU)
 {
     // geo origin init
@@ -53,6 +66,9 @@ void nodes::LongLatHeight2ENU(vector<double> &Origin_ENU)
     }    
 }
 
+/**
+ * @brief 经纬度坐标转化为ENU坐标，为与之同名函数的重载版本
+ */
 void nodes::LongLatHeight2ENU()
 {
     // geo origin init
@@ -73,7 +89,10 @@ void nodes::LongLatHeight2ENU()
     }    
 }
 
-
+/**
+ * @brief ENU坐标转化为Body坐标
+ * @param Rotate {cv::Matx33f &} ENU坐标到Body坐标系的旋转矩阵
+ */
 void nodes::ENU2Body(cv::Matx33f &Rotate)
 {
     for (int i = 0; i < nodes.size(); i++)
@@ -86,6 +105,9 @@ void nodes::ENU2Body(cv::Matx33f &Rotate)
     }
 }
 
+/**
+ * @brief ENU坐标转化为NED坐标
+ */
 void nodes::ENU2NED()
 {
     cv::Matx33f R(0, 1, 0, 1, 0, 0, 0, 0, -1);
@@ -97,6 +119,10 @@ void nodes::ENU2NED()
     }
 }
 
+/**
+ * @brief Body坐标转化为相机坐标系下坐标
+ * @param T {cv::Matx44f &} Body坐标系到相机坐标系的变换矩阵
+ */
 void nodes::Body2Cam(cv::Matx44f &T)
 {
     for (int i = 0; i < nodes.size(); i++)
@@ -109,7 +135,14 @@ void nodes::Body2Cam(cv::Matx44f &T)
     }
 }
 
-void nodes::World2Img(const cv::Mat &intrinsicMat, const cv::Mat distCoeffs, const cv::Mat &rVec, const cv::Mat &tVec)
+/**
+ * @brief 世界坐标系坐标到像素坐标系坐标的转化
+ * @param intrinsicMat {const cv::Mat &}相机内参
+ * @param disCoeffs {const cv::Mat &}相机畸变参数
+ * @param rVec {const cv::Mat &}世界坐标系到相机坐标系的旋转向量
+ * @param tVec {const cv::Mat &}世界坐标系到相机坐标系的平移向量
+ */
+void nodes::World2Img(const cv::Mat &intrinsicMat, const cv::Mat &distCoeffs, const cv::Mat &rVec, const cv::Mat &tVec)
 {
     vector<cv::Point3d> points_W;
     for (int i = 0; i < nodes.size(); i++)
@@ -126,6 +159,10 @@ void nodes::World2Img(const cv::Mat &intrinsicMat, const cv::Mat distCoeffs, con
     }
 }
 
+/**
+ * @brief 给nodes坐标加上z轴坐标，使其具有高度信息
+ * @param z {double &} z轴坐标
+ */ 
 void nodes::AppendZcoord(double &z)
 {
     int size = nodes.size();
@@ -134,6 +171,7 @@ void nodes::AppendZcoord(double &z)
         nodes[i].z_coord = z;
     }
 }
+
 
 nodes::~nodes()
 {
@@ -150,6 +188,11 @@ link::~link()
 
 }
 
+/**
+ * @brief 从CSV文件中读取数据
+ * @param str_csv_file {std::string}CSV文件名
+ * @param data {std::vector<vector<string>> &}保存从CSV文件中提取的数据
+ */
 void links::ReadFromCSV(std::string str_csv_file, std::vector<vector<string>> &data)
 {
     ifstream in_file(str_csv_file, std::ios::in);    
@@ -169,6 +212,10 @@ void links::ReadFromCSV(std::string str_csv_file, std::vector<vector<string>> &d
     }
 }
 
+/**
+ * @brief 将解析后的数据赋值填充给link对象
+ * @param data {vector<vector<string>> &} 保存着从CSV文件中解析的数据
+ */
 void links::Extract(vector<vector<string>> &data)
 {   
     links.clear();
@@ -190,6 +237,12 @@ links::~links()
     links.clear();
 }
 
+/**
+ * @brief 根据link信息获得node起点信息
+ * @param Link {link &}link对象
+ * @param Nodes {nodes &}保存所有节点的对象
+ * @param coord {output, pair<double, double> &}保存node起点的坐标信息
+ */
 void findLinkFromNodeCoord(link &Link, nodes &Nodes, pair<double, double> &coord)
 {
     node Node = Nodes.nodes[Link.from_node_id];
@@ -198,6 +251,12 @@ void findLinkFromNodeCoord(link &Link, nodes &Nodes, pair<double, double> &coord
     coord = make_pair(x_coord, y_coord);
 }
 
+/**
+ * @brief 根据link信息获得node终点信息
+ * @param Link {link &}link对象
+ * @param Nodes {nodes &}保存所有节点的对象
+ * @param coord {output, pair<double, double> &}保存node终点的坐标信息
+ */
 void findLinkToNodeCoord(link &Link, nodes &Nodes, pair<double, double> &coord)
 {
     node Node = Nodes.nodes[Link.to_node_id];
