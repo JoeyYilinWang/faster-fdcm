@@ -26,16 +26,17 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <iostream>
 #include <string>
 
-
+// 匹配测试用例
 void main(int argc, char *argv[])
 {
-	
-	//if(argc < 4)
-	//{
-	//	//std::cerr<<"[Syntax] fdcm template.txt input_edgeMap.pgm input_realImage.jpg"<<std::endl;
-	//	std::cerr<<"[Syntax] fdcm template.txt input_edgeMap.pgm input_realImage.ppm"<<std::endl;
-	//	exit(0);
-	//}
+
+	// 验证参数给定正确性
+	if(argc < 4)
+	{
+		//std::cerr<<"[Syntax] fdcm template.txt input_edgeMap.pgm input_realImage.jpg"<<std::endl;
+		std::cerr<<"[Syntax] fdcm template.txt input_edgeMap.pgm input_realImage.ppm"<<std::endl;
+		exit(0);
+	}
 
 	// 定义直线段拟合对象
 	LFLineFitter lf;
@@ -59,24 +60,23 @@ void main(int argc, char *argv[])
 	string edgeMapName(argv[2]);
 
 	// 对应于匹配成功后被检测目标在原始图像上的显示
-	string displayImageName(argv[3]);
+	string displayImageName(argv[3]); 
 	
 	// 不同使用方式
-	//string templateFileName("Exp_Smoothness/template_list.txt");
-	//string edgeMapName("Exp_Smoothness/device5-20_edge_cluttered.pgm");
-	//string displayImageName("Exp_Smoothness/device5-20_edge_cluttered.pgm");	
+	//string templateFileName("Template/template_list.txt");
+	//string edgeMapName("Query/query_edges.pgm");
+	//string displayImageName("Query/query.pgm");	
 
-	//string templateFileName("data/template_giraffe.txt");
-	//string edgeMapName("data/looking_edges.pgm");
-	//string displayImageName("data/looking.ppm");
+	//string templateFileName("Template/template_list.txt");
+	//string edgeMapName("Query/query_edges.pgm");
+	//string displayImageName("Query/query.ppm");
 	
 	// 直接将被检测结果覆盖到jpg图像最符合demo要求
-	//string templateFileName("data/template_applelogo.txt");
-	//string edgeMapName("data/hat_edges.pgm");
-	//string displayImageName("data/hat.jpg");
+	//string templateFileName("Template/template_list.txt");
+	//string edgeMapName("Query/query_edges.pgm");
+	//string displayImageName("Query/query.jpg");
 
 	
-	//inputImage = cvLoadImage(edgeMapName.c_str(),0);
 	// 使用portable grey map保存灰度图像，该灰度图像是由灰度像素组成的edge map
 	inputImage = ImageIO::LoadPGM(edgeMapName.c_str());
 
@@ -88,9 +88,9 @@ void main(int argc, char *argv[])
 	}
 	
 	// 初始化line fitter
-	lf.Init();
+	lf.Init(); 
 	
-	// line matcher读取模板，要注意的是该模板是一个.txt文件
+	// line matcher读取模板，要注意的是该模板是一个.txt文件，该文件保存着模板信息
 	lm.Init(templateFileName.c_str());
 
 
@@ -119,6 +119,5 @@ void main(int argc, char *argv[])
 		delete debugImage;
 	}
 
-	//cvReleaseImage(&inputImage);
 	delete inputImage;
 };

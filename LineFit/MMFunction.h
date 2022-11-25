@@ -44,6 +44,7 @@ private:
 
 };
 
+// 对列表中的元素进行排序, ascending非0时是升序排列，0为降序排列
 template <typename T> void MMFunctions::Sort(T* ra, int nVec,int ascending)
 {
 	if(ascending)

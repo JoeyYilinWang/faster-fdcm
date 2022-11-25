@@ -20,12 +20,14 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "LineSegment.h"
 
+// 从文件中读取直线段信息
 void LFLineSegment::Read(FILE* fin) 
 {
 	fscanf(fin, "%lf %lf", &sx_, &sy_);
 	fscanf(fin, "%lf %lf", &ex_, &ey_);
 }
 
+// 计算直线段与像素坐标系X轴的角度，而且范围在[0,2pi]之间
 double LFLineSegment::Theta()
 {
 	double theta = atan2(ey_-sy_,ex_-sx_); // the angle of line segment
@@ -34,18 +36,21 @@ double LFLineSegment::Theta()
 	return theta;
 }
 
+// 直线段关于像素坐标系下的X轴缩放
 void LFLineSegment::Aspect(double a) 
 {
 	sx_ *= a;
 	ex_ *= a;
 }
 
+// 计算直线段中点
 void LFLineSegment::Center(double *center) 
 {
 	center[0] = (sx_ + ex_) / 2;
 	center[1] = (sy_ + ey_) / 2;
 }
 
+// 直线段平移
 void LFLineSegment::Translate(double *vec)
 {
 	sx_ += vec[0];
@@ -55,7 +60,7 @@ void LFLineSegment::Translate(double *vec)
 	ey_ += vec[1];
 }
 
-
+// 直线段旋转指定角度
 void LFLineSegment::Rotate(double theta) 
 {
 	double x, y;
@@ -80,6 +85,7 @@ void LFLineSegment::Rotate(double theta)
 	ey_ = x*mat[1][0] + y*mat[1][1];
 }
 
+// 直线段按比例缩放
 void LFLineSegment::Scale(double s) // scale the size of line segment
 {
 	sx_ *= s;
@@ -89,6 +95,7 @@ void LFLineSegment::Scale(double s) // scale the size of line segment
 
 }
 
+// 计算直线段长度
 double LFLineSegment::Length() // compute the length of line segment
 {
 	double x, y;

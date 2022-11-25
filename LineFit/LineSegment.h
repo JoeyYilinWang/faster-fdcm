@@ -33,6 +33,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using namespace std;
 
+// 直线段类定义
 class LFLineSegment
 {
 public:

@@ -37,6 +37,7 @@ class pnm_error
 
 };
 
+// Image IO操作类定义
 class ImageIO
 {
 public:
@@ -136,6 +137,7 @@ Image<uchar> *ImageIO::LoadPBM(const char *name)
 
 	return im;
 }
+
 
 void ImageIO::SavePBM(Image<uchar> *im, const char *name) 
 {

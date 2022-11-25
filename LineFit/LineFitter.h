@@ -40,6 +40,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 using namespace std;
 #define LF_NUM_LAYER 2
 
+// 直线段拟合类定义
 class LFLineFitter
 {
 public:

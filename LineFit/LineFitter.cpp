@@ -20,6 +20,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "LineFitter.h"
 
+
 LFLineFitter::LFLineFitter()
 {
 	localWindSize_ = 50; //局部滑窗尺寸
@@ -43,6 +44,7 @@ LFLineFitter::LFLineFitter()
 	idx_ = NULL;
 }
 
+// 直线段拟合参数配置
 void LFLineFitter::Configure(double sigmaFitALine, double sigmaFindSupport, double maxGap, int nLayer, int *nLinesToFitInStage, int *nTrialsPerLineInStage)
 {
 	sigmaFitALine_ = sigmaFitALine;
@@ -79,6 +81,7 @@ void LFLineFitter::SafeRelease()
 	idx_ = NULL;
 }
 
+// 直线段拟合类对象初始化
 void LFLineFitter::Init()
 {
 	outEdgeMap_ = new LFLineSegment[nLinesToFitInStage_[0] + nLinesToFitInStage_[1]]; //一共300+3000=3300个直线段
@@ -89,9 +92,8 @@ void LFLineFitter::Init()
 }
 
 /**
- * @description: According
- * @param {Image<unsigned char>} *inputImage
- * @return {*}
+ * @brief 直线段拟合
+ * @param inputImage {Image<unsigned char> *}保存边像素的图像,存在边缘的像素值非0，否则为0
  */
 void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 {
@@ -217,6 +219,7 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 	// cout<<"[DO] Fit "<<nLineSegments_<<" lines taking "<<setiosflags(ios::fixed)<<setprecision(6)<<(t2.QuadPart - t1.QuadPart)/(1.0*f.QuadPart)<<"seconds"<<endl;
 }
 
+// 将EdgeMap保存到文件中
 void LFLineFitter::SaveEdgeMap(const char *filename)
 {
 	FILE *fp;
@@ -231,12 +234,14 @@ void LFLineFitter::SaveEdgeMap(const char *filename)
 	for (int i = 0; i < nLineSegments_; i++)
 	{
 		count += (double)outEdgeMap_[i].nSupport_;
+		// ratio为直线段支持边缘像素点数量占所有边缘点像素点的比例
 		ratio = count / nInputEdges_;
 		fprintf(fp, "%d %d %d %d\n", (int)outEdgeMap_[i].sx_, (int)outEdgeMap_[i].sy_, (int)outEdgeMap_[i].ex_, (int)outEdgeMap_[i].ey_);
 	}
 	fclose(fp);
 }
 
+// 从文件中读取直线段信息，并赋值给outEdgeMap
 void LFLineFitter::LoadEdgeMap(const char *filename)
 {
 	SafeRelease();
@@ -259,6 +264,7 @@ void LFLineFitter::LoadEdgeMap(const char *filename)
 	fclose(fp);
 }
 
+// 将直线段信息保存到Image<uchar>对象中
 Image<uchar> *LFLineFitter::ComputeOuputLineImage(Image<uchar> *inputImage)
 {
 
@@ -270,6 +276,7 @@ Image<uchar> *LFLineFitter::ComputeOuputLineImage(Image<uchar> *inputImage)
 	return debugImage;
 }
 
+// 将直线段信息保存到Image<uchar>图像中，并将其保存至PGM格式的图像中
 void LFLineFitter::DisplayEdgeMap(Image<uchar> *inputImage, const char *outputImageName)
 {
 	// for debug
@@ -302,11 +309,13 @@ void LFLineFitter::DisplayEdgeMap(Image<uchar> *inputImage, const char *outputIm
 
 
 /**
- * @brief find support of linesegment
+ * @brief 根据smallLocalWindow计算得到的lnormal找寻其获得最大支持的
  * @param nWindPoints 局部窗口上中所有边缘点的数量
  * @param windPoints 局部窗口中的所有边缘点
  * @param lnormal 通过smalllocalwindow计算出的法向量
  * @param sigmaFindSupport 形成直线段的最大支持
+ * @param maxGap 保持直线段连续性的最大Gap
+ * @param ls {output, LFLineSegment &}
  * @param proposedKillingList 将被丢弃的边缘点
  * @param nProposedKillingList 将被丢弃边缘点的个数
  * @param x0 局部窗口左上角像素在整张图像的像素横坐标
@@ -571,9 +580,8 @@ int LFLineFitter::SampleAPixel(map<int, Point<int>> *edgeMap, Image<unsigned cha
 }
 
 /**
- * @description: Initialize member variables of LFLineFitter object in using file
- * @param {char} *filename
- * @return {*}
+ * @brief 从配置文件中读取LFLineFitter对象配置
+ * @param filename {const char *}配置文件名
  */
 void LFLineFitter::Configure(const char *filename)
 {
@@ -639,6 +647,7 @@ void LFLineFitter::Configure(const char *filename)
 	PrintParameter();
 }
 
+// 打印配置参数
 void LFLineFitter::PrintParameter()
 {
 	cout << "/* ==========================================================" << endl;

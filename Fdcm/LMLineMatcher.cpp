@@ -26,6 +26,7 @@ LMLineMatcher::LMLineMatcher()
 	dbImages_ = NULL;
 	bias_ = 1.0;
 
+	// 设定60个方向
 	nDirections_ = 60;	
 	directionCost_ = 0.5;
 	maxCost_ = 30;	
@@ -80,6 +81,7 @@ void LMLineMatcher::Match(LFLineFitter &lf,vector<LMDetWind> &detWind)
 
 	// structure computation
 	queryImage_.SetNumDirections(nDirections_);
+
 	queryImage_.Read(lf);
 	queryImage_.Scale(scale_);
 	queryDistanceImage_.Configure(directionCost_,maxCost_);
@@ -341,7 +343,7 @@ double LMLineMatcher::MatchBruteForceCostMap(EIEdgeImage& dbImage,vector<double>
 	return minCost;
 }
 
-
+// 通过配置文件读取匹配对象的参数配置
 void LMLineMatcher::Configure(const char *filename)
 {
 	ifstream file;
@@ -454,7 +456,7 @@ void LMLineMatcher::Configure(const char *filename)
 	PrintParameter();
 }
 
-
+// 打印匹配对象配置参数
 void LMLineMatcher::PrintParameter()
 {
 	cout<<"/* =========================================================="<<endl;
@@ -492,17 +494,25 @@ void LMLineMatcher::Init(const char* fileName)
 		exit(-1);
 	}
 	string line;
+	// 读取file的一行给line
 	getline(file,line);
-	ndbImages_ = atoi(line.c_str());	
+	// ndbImages保存模板数量
+	ndbImages_ = atoi(line.c_str());
+	// 模板不止一个
 	dbImages_ = new EIEdgeImage [ndbImages_];
 
-	// read the templates
+	// 读取template
 	cout<<"Number of templates = "<<ndbImages_<<endl;
 	for (int i=0;i<ndbImages_ ;i++)
 	{
+		// 逐行读取
 		getline(file,line);
+
+		// 设定方向数量
 		dbImages_[i].SetNumDirections(nDirections_);
-		dbImages_[i].Read(line.c_str());		
+		// 针对每个template都进行直线段读取，并根据量化角度重构其存储方式
+		dbImages_[i].Read(line.c_str());
+		// 模板按比例缩放，相应直线段也按相同比例缩放
 		dbImages_[i].Scale(scale_*db_scale_);
 	}
 	file.close();

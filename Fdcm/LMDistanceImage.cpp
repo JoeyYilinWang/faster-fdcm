@@ -50,6 +50,7 @@ void LMDistanceImage::SetImage(EIEdgeImage& ei)
 	ConstructDIntegrals();
 }
 
+// 构建针对query map的三维距离变换积分图
 void LMDistanceImage::ConstructDTs(EIEdgeImage& ei)
 {
 	Image<uchar> image(width_,height_,false);

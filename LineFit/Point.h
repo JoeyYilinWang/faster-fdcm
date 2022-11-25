@@ -31,6 +31,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using namespace std;
 
+// 定义点
 template <class T>
 class Point
 {

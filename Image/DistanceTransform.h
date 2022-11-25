@@ -33,10 +33,7 @@ using namespace std;
 template <class T> 
 inline T square(const T &x) { return x*x; };
 
-//
-// The distance transform result is the same as the result computed with MATLAB. 
-// The neareast neighbor map is the same as the map computed with MATLAB.
-//
+// 距离变换积分图类定义
 class DistanceTransform
 {
 public:

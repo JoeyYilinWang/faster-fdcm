@@ -38,8 +38,7 @@ public:
 	void SafeRelease();	
 	void Read(const char* fileName);
 	void Read(LFLineFitter &lf);
-
-	// This is for reading line representation from MATLAB so the indexing is column by column.
+	
 	void Read(double *lineRep,int nLine);
 
 	void SetNumDirections(const int nDirections) {nDirections_=nDirections;};
@@ -63,13 +62,23 @@ public:
 	int Theta2Index(double theta);
 	double Index2Theta(int index);
 
+	// 模板图像宽度
 	int width_;
+	// 模板图像高度
 	int height_;
+	// 模板图像中包含的直线段数量
 	int	nLines_;
+	// 包含的方向
 	int nDirections_;
 
+	// 指向直线段列表的头指针
 	LFLineSegment* lines_;
+
+	/** 建立指向vector的指针。而该vector中的元素都是指向LFLineSegment的指针，本质上vector中保存着直线段列表（而该列表表示为列表头元素的指针），
+	 * vector中的元素实际上都对应着各方向对应的直线段列表。
+	 */
 	vector<LFLineSegment*>* directions_;
+
 	int* directionIndices_;
 
 };

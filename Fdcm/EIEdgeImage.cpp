@@ -73,6 +73,9 @@ void EIEdgeImage::Read(double *lineRep,int nLine)
 	}
 }
 
+/**
+ * @brief 读取指定文件中描述的直线段信息
+ */
 void EIEdgeImage::Read(const char* fileName)
 {
 	FILE* fin=NULL;
@@ -82,11 +85,15 @@ void EIEdgeImage::Read(const char* fileName)
 		cerr<<"[ERROR] Cannot read file "<<fileName<<"\n!!!";
 		exit(0);
 	}
+	// 第一行为直线段所在图像的宽度和高度赋值
 	fscanf(fin, "%d %d", &width_, &height_);
+	// 第二行为直线段的数量
 	fscanf(fin, "%d", &nLines_);
 	lines_ = new LFLineSegment[nLines_];
+	// 第三行开始储存直线段的信息
 	for (int i=0 ; i<nLines_ ; i++)
 	{
+		// 逐行读取直线段信息，即为直线段的起点和终点
 		lines_[i].Read(fin);
 	}
 
@@ -96,6 +103,7 @@ void EIEdgeImage::Read(const char* fileName)
 	fclose(fin);
 }
 
+// 将EdgeImage中的直线段的弧度进行量化
 void EIEdgeImage::SetLines2Grid()
 {	
 	double trans[2];
@@ -108,40 +116,66 @@ void EIEdgeImage::SetLines2Grid()
 		theta = lines_[i].Theta();
 
 		index = Theta2Index(theta);
+		
+		// 根据离散索引值恢复的弧度与原始弧度之差
 		dtheta = Index2Theta(index) - theta;
 
+		// 计算直线段中点
 		lines_[i].Center(trans);
-		for(int j=0;j<2;j++)
-			trans[j] *= -1;
 
+		// 中点坐标去其相反数
+		for(int j=0; j<2; j++)
+			trans[j] *= -1;
+	
+		// 将该直线段向原点方向平移，使直线段中点与原点重合
 		lines_[i].Translate(trans);
+		// 直线段旋转dtheta弧度，使直线段弧度为根据离散索引值恢复的弧度
 		lines_[i].Rotate(dtheta);
 
+		// 将直线段位置恢复到原来位置
 		for(int j=0;j<2;j++)
 			trans[j] *= -1;
-
 		lines_[i].Translate(trans);
 	}
 }
 
+/**
+ * @brief 将连续的弧度转化为离散的索引，达到量化的效果
+ * @param theta 根据直线段起点、终点计算的弧度值
+ * @return {int}离散索引值
+ */
 int EIEdgeImage::Theta2Index(double theta)
 {
 	return (int) floor ((theta  *nDirections_) / (M_PI+1e-5));
 }
 
+
+/**
+ * @brief 将离散的索引值转化为连续的弧度。但要注意的是，即使恢复弧度值，也无法恢复到原来的值
+ * @param index 离散索引值
+ * @return {double}弧度值
+ */
 double EIEdgeImage::Index2Theta(int index)
 {
 	return ((index)*M_PI)/nDirections_ + M_PI/(2*nDirections_);
 }
 
 
+/**
+ * @brief 根据直线段量化角度进行直线段储存重构，每个直线段都存于指定方向量化索引的vector中
+ */
 void EIEdgeImage::SetDirections()
 {
 	int index;
+
+	// 建立数组，内部包含nDirections_个元素，每个元素都是vector<LFlineSegment*>
 	directions_ = new vector<LFLineSegment*>[nDirections_];
 	for (int i=0 ; i<nLines_ ; i++)
 	{
+		// 通过弧度量化得到索引
 		index = Theta2Index(lines_[i].Theta());
+
+		// 对应索引的直线段被存于指定方向vector中
 		directions_[index].push_back(&(lines_[i]));
 	}
 }
@@ -160,6 +194,10 @@ void EIEdgeImage::Scale(double s)
 	height_ = (int)(height_*s);
 }
 
+/**
+ * @brief 读取linefitter对象，并将相应直线段信息转化为EIEdgeImage所需要的格式，并且直线段也要进行方向量化。
+ * @param lf LFlineFitter对象
+*/
 void EIEdgeImage::Read(LFLineFitter &lf)
 {
 	SafeRelease();

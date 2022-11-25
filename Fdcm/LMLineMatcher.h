@@ -55,7 +55,7 @@ public:
 
 	void Init(const char* fileName);
 
-	// find the best matcher
+	// 得到最好的匹配
 	void Match(LFLineFitter &lf,vector<LMDetWind> &detWind);
 
 	// compute detection windows
