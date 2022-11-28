@@ -45,21 +45,26 @@ void LMDistanceImage::SetImage(EIEdgeImage& ei)
 	height_ = ei.height_;
 	nDirections_ = ei.nDirections_;
 
+	// 构建针对query map的二维距离积分图
 	ConstructDTs(ei);
 	UpdateCosts();
 	ConstructDIntegrals();
 }
 
-// 构建针对query map的三维距离变换积分图
+// 构建针对query map的三维距离变换积分图，而且是针对不同方向的
 void LMDistanceImage::ConstructDTs(EIEdgeImage& ei)
 {
 	Image<uchar> image(width_,height_,false);
+
+	// 针对每个量化方向建立距离变换图
 	dtImages_.resize(nDirections_);
 
 	for (int i=0 ; i<ei.nDirections_ ; i++)
 	{
 		dtImages_[i].Resize(width_,height_,false);
 		ei.ConstructDirectionImage(i, &image);
+
+		// dtImages_[i]保存着每个像素到相邻边的最小距离
 		DistanceTransform::CompDT(&image, &dtImages_[i], false);
 	}
 }
@@ -68,21 +73,27 @@ void LMDistanceImage::ConstructDTs(EIEdgeImage& ei)
 void LMDistanceImage::UpdateCosts()
 {
 	float* costs;
+
+	// 针对每个方向，都定义一个cost
 	costs = new float[nDirections_];
 
+	// 分配新的储存空间，其内部保存着float*数据
 	float **buffers = new float*[nDirections_];
 	for (int i=0;i<nDirections_ ; i++)
 	{
+		// buffers[i]储存各方向distanceTransformImage的数据头指针
 		buffers[i] = (float*) dtImages_[i].data;
 	}
 	
-	
+
 	int wh = width_*height_;
 	for (int k=0 ; k<wh ; k++)
 	{
 		for (int i=0 ; i<nDirections_ ; i++)
 		{
-			costs[i] = buffers[i][k];
+			costs[i] = buffers[i][k]; // 
+
+			// Special!!!!!!!!!!!!
 			if (costs[i] > maxCost_)
 				costs[i] = (float)maxCost_;
 		}

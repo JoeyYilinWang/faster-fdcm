@@ -248,9 +248,11 @@ void EIEdgeImage::ConstructDirectionImage(int index,Image<uchar>* image)
 {
 	Point<int> pt1, pt2;
 	double vec[2];
+
+	// 被选中的像素设置为黑色
 	uchar black=0;
-	
-	//cvSet(image, cvScalar(255));
+
+	// 默认白色
 	image->Init(255);
 	for (unsigned int i=0 ; i<directions_[index].size() ; i++)
 	{
@@ -264,7 +266,7 @@ void EIEdgeImage::ConstructDirectionImage(int index,Image<uchar>* image)
 		pt2.x = (int)floor(vec[0]);
 		pt2.y = (int)floor(vec[1]);
 
-		//cvLine(image, pt1, pt2, cvScalar(0));
+		// 填充
 		ImageDraw<uchar>::Line(image,pt1.x,pt1.y,pt2.x,pt2.y,black);
 	}
 }
