@@ -41,7 +41,7 @@ void main(int argc, char *argv[])
 	
 	lf.Init(); // line fit
 	
-	// 配置文件读取，但该文件在哪？
+	// 配置文件读取
 	lf.Configure("para_template_line_fitter.txt");
 	
 	// 对输入图像进行边线拟合
