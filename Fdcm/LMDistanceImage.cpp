@@ -45,11 +45,14 @@ void LMDistanceImage::SetImage(EIEdgeImage& ei)
 	height_ = ei.height_;
 	nDirections_ = ei.nDirections_;
 
-	// 构建针对query map的二维距离积分图
+	// 构建针对query map的二维距离图
 	ConstructDTs(ei);
+	// 构建针对query map的三维距离图
 	UpdateCosts();
+	// 构建针对query map的三维距离积分图
 	ConstructDIntegrals();
 }
+
 
 // 构建针对query map的三维距离变换积分图，而且是针对不同方向的
 void LMDistanceImage::ConstructDTs(EIEdgeImage& ei)
@@ -89,16 +92,18 @@ void LMDistanceImage::UpdateCosts()
 	int wh = width_*height_;
 	for (int k=0 ; k<wh ; k++)
 	{
+		// 固定像素位置，遍历不同方向对应的二维距离变换图
 		for (int i=0 ; i<nDirections_ ; i++)
 		{
-			costs[i] = buffers[i][k]; // 
+			// costs保存了第k个像素位置上，各方向上对应的最小距离
+			costs[i] = buffers[i][k]; // buffers[i][k]表示第i个方向，第k个像素与最近边的最小距离
 
-			// Special!!!!!!!!!!!!
+			// 如果第i方向、第k个像素上的距离大于一个阈值maxCost，则costs[i]赋值为该阈值
 			if (costs[i] > maxCost_)
 				costs[i] = (float)maxCost_;
 		}
 
-		//forward pass
+		//前向遍历，directionCost_为连续两个方向之间的方向误差
 		if (costs[0] > costs[nDirections_-1] + directionCost_)
 			costs[0] = costs[nDirections_-1] + directionCost_;
 		for (int i=1 ; i<nDirections_ ; i++)
@@ -106,7 +111,7 @@ void LMDistanceImage::UpdateCosts()
 			if (costs[i] > costs[i-1] + directionCost_)
 				costs[i] = costs[i-1] + directionCost_;
 		}
-
+		
 		if (costs[0] > costs[nDirections_-1] + directionCost_)
 			costs[0] = costs[nDirections_-1] + directionCost_;
 		for (int i=1 ; i<nDirections_ ; i++)
@@ -117,7 +122,7 @@ void LMDistanceImage::UpdateCosts()
 				break;
 		}
 
-		//backward pass
+		//后向遍历
 		if (costs[nDirections_-1] > costs[0] + directionCost_)
 			costs[nDirections_-1] = costs[0] + directionCost_;
 		for (int i=nDirections_-1 ; i>0 ; i--)
@@ -135,7 +140,8 @@ void LMDistanceImage::UpdateCosts()
 			else
 				break;
 		}
-
+		
+		// 经过前后两次遍历后，dtImages_[i]保存了各方向上最小的距离（包括角度误差）。三维距离变换图构造完成
 		for (int i=0 ; i<nDirections_ ; i++)
 		{
 			buffers[i][k] =  costs[i];
@@ -148,14 +154,16 @@ void LMDistanceImage::UpdateCosts()
 }
 
 
+// 根据三维距离变换图构建三维距离变换积分图
 void LMDistanceImage::ConstructDIntegrals()
 {
 	double theta;
 	idtImages_.resize(nDirections_);
 	for (int i=0 ; i<nDirections_ ; i++)
-	{
+	{	
+		// 将方向索引转化为角度，并加一个偏置，该偏置为连续两个方向之间的夹角的一半
 		theta = (i*M_PI)/nDirections_ + M_PI/(2*nDirections_);
-		idtImages_[i].CreateImage(width_,height_);		
+		idtImages_[i].CreateImage(width_,height_);	
 		idtImages_[i].Construct(&dtImages_[i], (float)cos(theta), (float)sin(theta));
 	}
 }

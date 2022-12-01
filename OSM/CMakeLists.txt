@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rendering_test)
+project(render_unit)
 
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_BUILD_TYPE "release")
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
 set(GeographicLib_INCLUDE_DIRS "/usr/local/include/GeographicLib")
@@ -19,5 +19,5 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 add_library(Element SHARED Element.cpp)
 
-add_executable(rendering_test main.cpp)
-target_link_libraries(rendering_test Element ${LINK_LIBS})
+add_executable(render_unit main.cpp)
+target_link_libraries(render_unit Element ${LINK_LIBS})

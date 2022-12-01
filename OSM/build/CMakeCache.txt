@@ -145,7 +145,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=rendering_test
+CMAKE_PROJECT_NAME:STATIC=render_unit
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -213,10 +213,10 @@ CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 OpenCV_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/opencv4
 
 //Value Computed by CMake
-rendering_test_BINARY_DIR:STATIC=/home/joey/Projects/faster-fdcm/OSM/build
+render_unit_BINARY_DIR:STATIC=/home/joey/Projects/faster-fdcm/OSM/build
 
 //Value Computed by CMake
-rendering_test_SOURCE_DIR:STATIC=/home/joey/Projects/faster-fdcm/OSM
+render_unit_SOURCE_DIR:STATIC=/home/joey/Projects/faster-fdcm/OSM
 
 
 ########################

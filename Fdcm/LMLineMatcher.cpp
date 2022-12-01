@@ -96,7 +96,7 @@ void LMLineMatcher::Match(LFLineFitter &lf,vector<LMDetWind> &detWind)
 
 	double minCost = 1e+10;
 
-	// mathcing
+	// matching
 	int counter = 0;
 	for (int i=0 ; i<ndbImages_ ; i++)
 	{		

@@ -37,7 +37,7 @@ void main(int argc, char *argv[])
 		std::cerr<<"[Syntax] fdcm template.txt input_edgeMap.pgm input_realImage.ppm"<<std::endl;
 		exit(0);
 	}
-
+	
 	// 定义直线段拟合对象
 	LFLineFitter lf;
 
@@ -50,7 +50,6 @@ void main(int argc, char *argv[])
 	lm.Configure("para_line_matcher.txt");
 
 
-	//Image *inputImage=NULL;
 	Image<uchar> *inputImage=NULL;
 
 	// 对应于论文中的模板U

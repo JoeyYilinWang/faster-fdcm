@@ -68,7 +68,7 @@ void LMDirectionalIntegralDistanceImage::Construct(Image<float> *image, float dx
 		ds_ = dx / (dy + 1e-9f);
 		xindexed_ = 0;
 	}
-	// Compute secant
+	// 计算正割，是cos的导数																																													
 	factor_ = sqrt(ds_*ds_ + 1);
 	ComputeIndices();
 	ComputeII(image);

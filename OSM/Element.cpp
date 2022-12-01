@@ -95,7 +95,7 @@ void nodes::LongLatHeight2ENU()
     GeographicLib::LocalCartesian geo_converter;
     if (nodes.size() > 0)
     {
-        // set ENU origin 
+        // 设置ENU坐标系原点，以第一个节点作为ENU坐标系的原点
         geo_converter.Reset(nodes[0].y_coord, nodes[0].x_coord, nodes[0].z_coord);
         for (int i = 0; i < nodes.size(); i++)
         {

@@ -71,7 +71,7 @@ class nodes
     void ENU2Body(cv::Matx33f &Rotate);
     void ENU2NED();
     void Body2Cam(cv::Matx44f &T);
-    void World2Img(const cv::Mat &intrinsicMat, const cv::Mat distCoeffs, const cv::Mat &rVec, const cv::Mat &tVec);
+    void World2Img(const cv::Mat &intrinsicMat, const cv::Mat &distCoeffs, const cv::Mat &rVec, const cv::Mat &tVec);
     void AppendZcoord(double &z);
 
     ~nodes();

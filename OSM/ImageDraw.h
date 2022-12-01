@@ -55,9 +55,6 @@ void DrawNodes(cv::Mat &binImage, int w, int h, nodes &Nodes)
     {
         cv::circle(binImage, Nodes.nodes[i].point_P, 1, cv::Scalar::all(255), CV_FILLED);
     }
-    cv::namedWindow("binImage", cv::WINDOW_NORMAL);
-    cv::imshow("binImage", binImage);
-    cv::waitKey();
 }
 
 
@@ -85,9 +82,13 @@ void DrawLineOfLink(cv::Mat &binImage, link &Link, nodes &Nodes)
     int Node1_id, Node2_id;
     Node1_id = Link.from_node_id;
     Node2_id = Link.to_node_id;
-    Node1 = Nodes.nodes[Node1_id];
-    Node2 = Nodes.nodes[Node2_id];
-    DrawLineOfTwoNodes(binImage, Node1, Node2);
+
+    if ((Node1_id < Nodes.nodes.size()) && (Node2_id < Nodes.nodes.size()))
+    {
+        Node1 = Nodes.nodes[Node1_id];
+        Node2 = Nodes.nodes[Node2_id];
+        DrawLineOfTwoNodes(binImage, Node1, Node2);
+    }
 }
 
 
@@ -105,5 +106,12 @@ void DrawLinesOfLinks(cv::Mat &binImage, links &Links, nodes &Nodes)
         DrawLineOfLink(binImage, Links.links[i], Nodes);
     }
 }
+
+void SaveImage(cv::Mat &binImage, const char* filename)
+{
+    cv::imwrite(filename, binImage);
+}
+
+
 
 #endif

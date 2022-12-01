@@ -6,10 +6,11 @@
 
 using namespace std;
 
-// fitline API using, just using not need to analyse
+// 直线段拟合功能单元测试
 void main(int argc, char *argv[])
 {
 
+	
 	Image<uchar> *inputImage=NULL; // initialize a input image
 
 	// define line fitter
