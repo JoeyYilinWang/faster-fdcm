@@ -246,7 +246,7 @@ void EIEdgeImage::Aspect(double a)
 
 void EIEdgeImage::ConstructDirectionImage(int index,Image<uchar>* image)
 {
-	Point<int> pt1, pt2;
+	point<int> pt1, pt2;
 	double vec[2];
 
 	// 被选中的像素设置为黑色
@@ -358,7 +358,7 @@ void EIEdgeImage::ConstructImage(Image<RGBMap> *image, int thickness)
 {
 	int i;
 	//CvPoint pt1, pt2;
-	Point<int> pt1,pt2;
+	point<int> pt1,pt2;
 	double len;
 	//cvSet(image, cvScalar(255,255,255));
 	RGBMap white(255,255,255),black(0,0,0);
@@ -386,7 +386,7 @@ void EIEdgeImage::ConstructImage(Image<RGBMap> *image, int thickness)
 void EIEdgeImage::ConstructOrientedImage(Image<RGBMap> *image,Image<double> *orientImage, int thickness)
 {
 	int i;
-	Point<int> pt1, pt2;
+	point<int> pt1, pt2;
 	double len;
 	//cvSet(image, cvScalar(255,255,255));
 	RGBMap white(255,255,255),black(0,0,0);

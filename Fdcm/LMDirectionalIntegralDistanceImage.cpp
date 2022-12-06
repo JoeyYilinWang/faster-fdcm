@@ -109,7 +109,6 @@ void LMDirectionalIntegralDistanceImage::ComputeIndices()
 
 
 
-
 void LMDirectionalIntegralDistanceImage::ComputeII(Image<float>* image)
 {
 	int x, y;
@@ -127,7 +126,6 @@ void LMDirectionalIntegralDistanceImage::ComputeII(Image<float>* image)
 		//cvSetReal2D(iimage_,y,0,0);
 		//WriteFloat(iimage_,0,y) = 0;
 	}		
-
 
 	if (xindexed_)
 	{

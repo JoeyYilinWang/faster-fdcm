@@ -31,20 +31,21 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using namespace std;
 
+
 // 定义点
 template <class T>
-class Point
+class point
 {
 public:
-	Point() {};
-	Point(T xInput,T yInput): x(xInput), y(yInput) {};
+	point() {};
+	point(T xInput,T yInput): x(xInput), y(yInput) {};
 	T x;
 	T y;
-	inline Point& operator=(const Point &rhs);	
+	inline point& operator=(const point &rhs);	
 };
 
 template <class T> 
-Point<T>& Point<T>::operator=(const Point &rhs)
+point<T>& point<T>::operator=(const point &rhs)
 {
 	x = rhs.x;
 	y = rhs.y;

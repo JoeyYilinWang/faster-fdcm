@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/joey/Projects/faster-fdcm/OSM/build/rendering_test",
+            "program": "/home/joey/Projects/faster-fdcm/Unit-test/build/RenderAndLineFit", 
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

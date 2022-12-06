@@ -25,6 +25,13 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <climits>
 #include <cstring>
 #include <fstream>
+
+#include <opencv4/opencv2/highgui.hpp>
+#include <opencv4/opencv2/core.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
+#include <opencv4/opencv2/imgproc/imgproc_c.h>
+using namespace cv;
+
 #include "Image.h"
 
 
@@ -48,6 +55,7 @@ public:
 
 	inline static void SavePBM(Image<uchar> *im, const char *name);
 	inline static void SavePGM(Image<uchar> *im, const char *name);
+	inline static void SavePGM(cv::Mat Image, const char* name);
 	inline static void SavePPM(Image<RGBMap> *im, const char *name);
 	template <class T>inline  void SaveImage(Image<T> *im, const char *name);
 
@@ -157,8 +165,8 @@ Image<uchar> *ImageIO::LoadPGM(const char *name)
 	/* read header */
 	std::ifstream file(name, std::ios::in | std::ios::binary);
 	pnm_read(file, buf);
-	if (strncmp(buf, "P5", 2))
-		return NULL;
+	// if (strncmp(buf, "P5", 2))
+	// 	return NULL;
 
 	pnm_read(file, buf);
 	int width = atoi(buf);
@@ -185,6 +193,21 @@ void ImageIO::SavePGM(Image<uchar> *im, const char *name)
 	file << "P5\n" << width << " " << height << "\n" << UCHAR_MAX << "\n";
 	file.write((char *)imPtr(im, 0, 0), width * height * sizeof(uchar));
 }
+
+void ImageIO::SavePGM(cv::Mat Image, const char* name)
+{
+	cv::Size sz = Image.size();
+	int width = sz.width;
+	int height = sz.height;
+
+	std::ofstream file(name, std::ios::out | std::ios::binary);
+
+	file << "P5\n" << width << " " << height << "\n" << UCHAR_MAX << "\n";
+	file.write((char *)Image.ptr<uchar>(0, 0), width * height * sizeof(uchar));
+}
+
+
+
 
 // 读取PPM格式文件，并将其转化为Image<RGBMap>格式
 Image<RGBMap> *ImageIO::LoadPPM(const char *name) 
@@ -254,6 +277,37 @@ void ImageIO::SaveImage(Image<T> *im, const char *name)
 	file << "VLIB\n" << width << " " << height << "\n";
 	file.write((char *)imPtr(im, 0, 0), width * height * sizeof(T));
 }
+ 
+ 
+/**
+ * @brief 将输入图像转化为pgm格式的图像
+ * @param filename 输出的pgm文件名字
+ * @param srcImage 输入的IplImage*文件
+ */
+void cvConvertImage2pgm(const char* filename, IplImage* srcImage)
+{
+	int width = srcImage->width;
+	int height = srcImage->height;
+	FILE *pgmPict;
+	int rSize = width * height;
+	int i, j;
+	pgmPict = fopen(filename, "w");
+	fprintf(pgmPict, "P5\n");
+	fprintf(pgmPict,"%d %d \n%d\n",width,height,255);
+	
+	unsigned char tmp = 0;
+	for (i = 0; i < srcImage->height; i++)
+	{
+		for (j = 0; j < srcImage->width; j++)
+		{
+			tmp = srcImage->imageData[i*srcImage->width+j*3];
+			fwrite((void*)&tmp,sizeof(unsigned char),1,pgmPict);
+		}
+	}
+	fclose(pgmPict);
+}
+
+
 
 #endif
 

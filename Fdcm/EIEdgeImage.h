@@ -21,11 +21,11 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifndef _ei_edge_image_h_
 #define _ei_edge_image_h_
 
-#include "LineFit/LineSegment.h"
-#include "LineFit/LineFitter.h"
-#include "LineFit/Point.h"
-#include "Image/Image.h"
-#include "Image/ImageDraw.h"
+#include "../LineFit/LineSegment.h"
+#include "../LineFit/LineFitter.h"
+#include "../LineFit/Point.h"
+#include "../Image/Image.h"
+#include "../Image/ImageDraw.h"
 #include <vector>
 using namespace std;
 

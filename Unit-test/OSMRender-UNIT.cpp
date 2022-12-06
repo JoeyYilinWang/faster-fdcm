@@ -1,23 +1,36 @@
-#include "Element.h"
-#include "ImageDraw.h"
+#include "../OSM/Element.h"
+#include "../OSM/ImageDraw.h"
+#include "../Image/ImageIO.h"
+
 // test OSM nodes rendering unit
 int main(int argc,char *argv[])
 {
 
     // 验证参数给定正确性
+    string node_csv ;
+    string link_csv ;
+    double x, y, z;
+    string outputImage;
 	if(argc < 7)
 	{
-		//std::cerr<<"[Syntax] render_unit node.csv link.csv x y height outputImage.png"<<std::endl;
-		std::cerr<<"[Syntax] render_unit node.csv link.csv x y height outputImage.png"<<std::endl;
-		exit(0);
+		//std::cerr<<"[Syntax] render_unit node.csv link.csv x y height outputImage.pgm"<<std::endl;
+        // exit(0);
+		cout <<"[Syntax] render_unit node.csv link.csv x y height outputImage.png"<<std::endl;
+        cout << "Switch to default parameters" << endl;
+        node_csv = "/home/joey/Projects/OSM_Analysis/output/node.csv";
+        link_csv = "/home/joey/Projects/OSM_Analysis/output/link.csv";
+        x = 0; y = 0; z = 5000;
+        outputImage = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdge.pgm";
 	}
-
-    char* node_csv(argv[1]);
-    char* link_csv(argv[2]);
-    double x = atof(argv[3]);
-    double y = atof(argv[4]);
-    double z = atof(argv[5]);
-    char* outputImage(argv[6]);
+    else
+    {
+        node_csv = argv[1];
+        link_csv = argv[2];
+        x = atof(argv[3]);
+        y = atof(argv[4]);
+        z = atof(argv[5]);
+        outputImage = argv[6];       
+    }
 
     nodes Nodes;
     vector<vector<string>> data;
@@ -89,8 +102,6 @@ int main(int argc,char *argv[])
  
     Nodes.World2Img(intrisicMat, distCoeffs, rVec, tVec);
     
-
-
     // 定义图像画布，设定图像分辨率
     int w = 1280;
     int h = 720;
@@ -107,8 +118,7 @@ int main(int argc,char *argv[])
     // cv::imshow("binImage", binImage);
     // cv::waitKey();
 
-    SaveImage(binImage, outputImage);
-
+    ImageIO::SavePGM(binImage, outputImage.c_str());
 
     return 0;
 }  

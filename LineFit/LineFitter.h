@@ -33,9 +33,9 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "LineSegment.h"
 #include "MMFunction.h"
-#include "Image/Image.h"
-#include "Image/ImageIO.h"
-#include "Image/ImageDraw.h"
+#include "../Image/Image.h"
+#include "../Image/ImageIO.h"
+#include "../Image/ImageDraw.h"
 
 using namespace std;
 #define LF_NUM_LAYER 2
@@ -75,11 +75,11 @@ public:
 
 private:
 
-	int FitALine(const int nWindPoints,Point<int> *windPoints,const double sigmaFitALine,Point<double> &lnormal);
-	int SampleAPixel(map<int,Point<int> > *edgeMap,Image<unsigned char> *inputImage,int nPixels);
-	void FindSupport(const int nWindPoints,Point<int> *windPoints,Point<double> &lnormal,double sigmaFindSupport,double maxGap,LFLineSegment &ls,Point<int> *proposedKillingList,int &nProposedKillingList,int x0,int y0);
-	void Find(int x0,int y0,Point<int> *windPoints,int &nWindPoints,Image<unsigned char> *inputImage,int localWindSize);
-	void Find(map<int,Point<int> > *edgeMap,int x0,int y0,Point<int> *windPoints,int &nWindPoints,Image<unsigned char> *inputImage,int localWindSize);
+	int FitALine(const int nWindpoints,point<int> *windpoints,const double sigmaFitALine,point<double> &lnormal);
+	int SampleAPixel(map<int,point<int> > *edgeMap,Image<unsigned char> *inputImage,int nPixels);
+	void FindSupport(const int nWindpoints,point<int> *windpoints,point<double> &lnormal,double sigmaFindSupport,double maxGap,LFLineSegment &ls,point<int> *proposedKillingList,int &nProposedKillingList,int x0,int y0);
+	void Find(int x0,int y0,point<int> *windpoints,int &nWindpoints,Image<unsigned char> *inputImage,int localWindSize);
+	void Find(map<int,point<int> > *edgeMap,int x0,int y0,point<int> *windpoints,int &nWindpoints,Image<unsigned char> *inputImage,int localWindSize);
 	void SafeRelease();
 
 private:
@@ -108,7 +108,7 @@ private:
 	int smallLocalWindowSize_;
 
 	// temporary storage use
-	Point<int> *rpoints_;
+	point<int> *rpoints_;
 	double *rProjection_;
 	double *absRProjection_;
 	int *idx_;

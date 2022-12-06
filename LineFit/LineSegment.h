@@ -29,7 +29,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //#include <cxcore.h>
 #include <iostream>
 #include <vector>
-#include "LineFit/Point.h"
+#include "Point.h"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ public:
 	double sx_,sy_,ex_,ey_; // define the start and end points of line segment
 	int nSupport_; // number of supporting points of line segment
 	double len_; // length of line segment
-	Point<double> normal_; //该直线段的法向量，由Point类型表示
+	point<double> normal_; //该直线段的法向量，由Point类型表示
 
 	void Read(FILE* fin); 	
 	void Center(double *center); // the center of line segment

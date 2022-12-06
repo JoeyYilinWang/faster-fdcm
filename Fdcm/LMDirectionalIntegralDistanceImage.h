@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //#include <cxcore.h>
 #include <iostream>
 #include <cmath>
-#include "Image/Image.h"
+#include "../Image/Image.h"
 
 using namespace std;
 

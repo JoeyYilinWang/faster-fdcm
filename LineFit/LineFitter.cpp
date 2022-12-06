@@ -48,8 +48,7 @@ LFLineFitter::LFLineFitter()
 void LFLineFitter::Configure(double sigmaFitALine, double sigmaFindSupport, double maxGap, int nLayer, int *nLinesToFitInStage, int *nTrialsPerLineInStage)
 {
 	sigmaFitALine_ = sigmaFitALine;
-	sigmaFindSupport_ = sigmaFindSupport;
-	maxGap_ = maxGap;
+	sigmaFindSupport_ = sigmaFindSupport;	maxGap_ = maxGap;
 	for (int i = 0; i < nLayer; i++)
 	{
 		nLinesToFitInStage_[i] = nLinesToFitInStage[i];
@@ -85,7 +84,7 @@ void LFLineFitter::SafeRelease()
 void LFLineFitter::Init()
 {
 	outEdgeMap_ = new LFLineSegment[nLinesToFitInStage_[0] + nLinesToFitInStage_[1]]; //一共300+3000=3300个直线段
-	rpoints_ = new Point<int>[nMaxWindPoints_];
+	rpoints_ = new point<int>[nMaxWindPoints_];
 	rProjection_ = new double[nMaxWindPoints_];
 	absRProjection_ = new double[nMaxWindPoints_];
 	idx_ = new int[nMaxWindPoints_];
@@ -104,7 +103,7 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 	width_ = inputImage->width();
 	height_ = inputImage->height();
 
-	map<int, Point<int>> edgeMap; // edgeMap由map储存
+	map<int, point<int>> edgeMap; // edgeMap由map储存
 
 	int i, j, k;
 	int x0, y0;
@@ -114,12 +113,12 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 	int nEdges = 0; // 表示边缘像素点个数
 	int maxSupport = 0;
 	LFLineSegment tmpLs, bestLs; //全称为temporary lines与best lines
-	Point<double> lnormal;
+	point<double> lnormal;
 	int nWindPoints = 0, nWaitingKillingList = 0, nProposedKillingList = 0;
-	Point<int> *windPoints, *waitingKillingList, *proposedKillingList;
-	windPoints = new Point<int>[nMaxWindPoints_];
-	waitingKillingList = new Point<int>[nMaxWindPoints_];
-	proposedKillingList = new Point<int>[nMaxWindPoints_];
+	point<int> *windPoints, *waitingKillingList, *proposedKillingList;
+	windPoints = new point<int>[nMaxWindPoints_];
+	waitingKillingList = new point<int>[nMaxWindPoints_];
+	proposedKillingList = new point<int>[nMaxWindPoints_];
 
 	width = inputImage->width();
 	height = inputImage->height();
@@ -136,7 +135,7 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 			if (imRef(inputImage, x, y) != 0)
 			{
 				// edgeMap利用Map数据结构保存了所有输入图像的所有边缘点信息，每个元素都是一个pair结构，key为经换算得到的图像像素位置，value为图像像素位置
-				edgeMap.insert(pair<int, Point<int>>(i, Point<int>(x, y))); // i并不是序数，而是图像上的像素位置被换算罢了
+				edgeMap.insert(pair<int, point<int>>(i, point<int>(x, y))); // i并不是序数，而是图像上的像素位置被换算罢了
 				nEdges++;
 			}
 		}
@@ -185,7 +184,7 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 				{
 					maxSupport = tmpLs.nSupport_;
 					nWaitingKillingList = nProposedKillingList;
-					memcpy(waitingKillingList, proposedKillingList, sizeof(Point<int>) * nWaitingKillingList);
+					memcpy(waitingKillingList, proposedKillingList, sizeof(point<int>) * nWaitingKillingList);
 					bestLs = tmpLs;
 				}
 			}
@@ -284,7 +283,6 @@ void LFLineFitter::DisplayEdgeMap(Image<uchar> *inputImage, const char *outputIm
 	// cvZero(debugImage);
 
 	Image<uchar> debugImage(inputImage->width(), inputImage->height());
-	;
 
 	for (int i = 0; i < nLineSegments_; i++)
 	{
@@ -321,15 +319,15 @@ void LFLineFitter::DisplayEdgeMap(Image<uchar> *inputImage, const char *outputIm
  * @param x0 局部窗口左上角像素在整张图像的像素横坐标
  * @param y0 局部窗口左上角像素在整张图像的像素纵坐标
  */
-void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Point<double> &lnormal,
+void LFLineFitter::FindSupport(const int nWindPoints, point<int> *windPoints, point<double> &lnormal,
 							   double sigmaFindSupport, double maxGap, LFLineSegment &ls,
-							   Point<int> *proposedKillingList, int &nProposedKillingList, int x0, int y0)
+							   point<int> *proposedKillingList, int &nProposedKillingList, int x0, int y0)
 {
 	int i, j;
 	int nRindices = 0;
 	int zeroIndex = 0;
 	double residuals;
-	Point<double> ldirection; // line direction 
+	point<double> ldirection; // line direction 
 
 	// Find the point within the threshold by taking dot product
 	for (i = 0; i < nWindPoints; i++)
@@ -435,7 +433,7 @@ void LFLineFitter::FindSupport(const int nWindPoints, Point<int> *windPoints, Po
  * @param lnormal the normal of line 
  * @return  the score of fit best line 
  */
-int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const double sigmaFitALine, Point<double> &lnormal)
+int LFLineFitter::FitALine(const int nWindPoints, point<int> *windPoints, const double sigmaFitALine, point<double> &lnormal)
 {
 	// RANSAC algorithm parameter
 	double inlierRatio = 0.9;
@@ -451,7 +449,7 @@ int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const 
 	double tmpScore;
 	double norm;
 	int bestscore = -1;
-	Point<double> cdirection, cnormal;
+	point<double> cdirection, cnormal;
 
 	while (i < nMaxTry) //使用ransac算法进行直线段拟合
 	{
@@ -507,7 +505,7 @@ int LFLineFitter::FitALine(const int nWindPoints, Point<int> *windPoints, const 
 // 该函数还有一个重载版本，但功能与该版本完全相同。
 // 唯一不同在于遍历方式不同，该版本是对窗口内的所有像素位置进行遍历，根据遍历像素位置上的值来判断是否是边缘点，满足边缘点条件后再进行处理
 // 而被重载的版本则是直接使用edgeMap进行遍历，因此并不需要判断。
-void LFLineFitter::Find(int x0, int y0, Point<int> *windPoints, int &nWindPoints, Image<unsigned char> *inputImage, int localWindSize)
+void LFLineFitter::Find(int x0, int y0, point<int> *windPoints, int &nWindPoints, Image<unsigned char> *inputImage, int localWindSize)
 {
 	int x, y;
 	nWindPoints = 0;
@@ -539,11 +537,11 @@ void LFLineFitter::Find(int x0, int y0, Point<int> *windPoints, int &nWindPoints
  * @param {int} localWindSize
  * @return {*}
  */
-void LFLineFitter::Find(map<int, Point<int>> *edgeMap, int x0, int y0, Point<int> *windPoints, int &nWindPoints, Image<unsigned char> *inputImage, int localWindSize)
+void LFLineFitter::Find(map<int, point<int>> *edgeMap, int x0, int y0, point<int> *windPoints, int &nWindPoints, Image<unsigned char> *inputImage, int localWindSize)
 {
 	// 重新赋值
 	nWindPoints = 0;
-	map<int, Point<int>>::iterator it;
+	map<int, point<int>>::iterator it;
 
 	int left = max(x0 - localWindSize, 0);
 	int right = min(x0 + localWindSize, inputImage->width());
@@ -569,10 +567,10 @@ void LFLineFitter::Find(map<int, Point<int>> *edgeMap, int x0, int y0, Point<int
  * @param {int} nPixels
  * @return {int} index of sampled point
  */
-int LFLineFitter::SampleAPixel(map<int, Point<int>> *edgeMap, Image<unsigned char> *inputImage, int nPixels)
+int LFLineFitter::SampleAPixel(map<int, point<int>> *edgeMap, Image<unsigned char> *inputImage, int nPixels)
 {
 	int index = (int)(floor(rand() / (double)RAND_MAX * (double)(edgeMap->size() - 1)));
-	map<int, Point<int>>::iterator it;
+	map<int, point<int>>::iterator it;
 	it = edgeMap->begin();
 	for (int i = 0; i < index; i++)
 		it++;
@@ -596,12 +594,13 @@ void LFLineFitter::Configure(const char *filename)
 		cerr << "Cannot open file " << filename << endl;
 		exit(-1);
 	}
-
+	
 	while (getline(file, line))
 	{
 		if (string::npos != line.find("SIGMA_FIT_A_LINE"))
 		{
 			found = line.find(column);
+			// substring可能包含空格，但并不影响atof函数的使用，因为atof函数会跳过空格及任意非数字的字符
 			string substring = line.substr(found + 1, line.length() - found).c_str();
 			sigmaFitALine_ = atof(substring.c_str()); //把字符串转化为浮点数
 		}
@@ -611,7 +610,7 @@ void LFLineFitter::Configure(const char *filename)
 			string substring = line.substr(found + 1, line.length() - found).c_str();
 			sigmaFindSupport_ = atof(substring.c_str());
 		}
-		else if (string::npos != line.find("MAX_GAP:"))
+		else if (string::npos != line.find("MAX_GAP"))
 		{
 			found = line.find(column);
 			string substring = line.substr(found + 1, line.length() - found).c_str();

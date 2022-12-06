@@ -21,10 +21,10 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifndef _lm_distance_image_h_
 #define _lm_distance_image_h_
 
-#include "Image/Image.h"
-#include "Image/DistanceTransform.h"
-#include "EIEdgeImage.h"
-#include "LMDirectionalIntegralDistanceImage.h"
+#include "../Image/Image.h"
+#include "../Image/DistanceTransform.h"
+#include "../Fdcm/EIEdgeImage.h"
+#include "../Fdcm/LMDirectionalIntegralDistanceImage.h"
 
 
 class LMDistanceImage 
