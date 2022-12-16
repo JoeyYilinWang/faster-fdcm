@@ -40,11 +40,12 @@ public:
 	// 输入图像中各像素保存的值是unsigned char，不是RGBMap。
 	// 输出有两个，一个是保存各像素与最近边的距离值，一个是保存各像素与最近边上像素的索引
 	static void CompDT(const Image<uchar> *input, Image<float> *output, bool onEqualOne=true, Image<int> *nn=NULL);
+	static float *Update1DDTCost(float *f, const int n);
 
 private:
 
 	static void Update2DDTCost(Image<float> *output);
-	static float *Update1DDTCost(float *f, const int n);
+	// static float *Update1DDTCost(float *f, const int n);
 
 	// update cost and store nearest neighbors
 	static void Update2DDTCostNN(Image<float> *output,Image<int> *nn);

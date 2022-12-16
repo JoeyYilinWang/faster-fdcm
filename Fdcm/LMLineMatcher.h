@@ -28,13 +28,13 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <string>
 #include <stdio.h>
 #include <vector>
-#include "LineFit/LineFitter.h"
-#include "EIEdgeImage.h"
-#include "LMDistanceImage.h"
-#include "LMDetWind.h"
-#include "LMDisplay.h"
-#include "LMNonMaximumSuppression.h"
-#include "MatchingCostMap.h"
+#include "../LineFit/LineFitter.h"
+#include "../Fdcm/EIEdgeImage.h"
+#include "../Fdcm/LMDistanceImage.h"
+#include "../Fdcm/LMDetWind.h"
+#include "../Fdcm/LMDisplay.h"
+#include "../Fdcm/LMNonMaximumSuppression.h"
+#include "../Fdcm/MatchingCostMap.h"
 //#include <windows.h>
 
 using namespace std;

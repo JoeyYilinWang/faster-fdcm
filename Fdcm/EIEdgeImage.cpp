@@ -74,7 +74,7 @@ void EIEdgeImage::Read(double *lineRep,int nLine)
 }
 
 /**
- * @brief 读取指定文件中描述的直线段信息
+ * @brief 读取指定文件中描述的直线段信息，并将其按照量化方向进行存储
  */
 void EIEdgeImage::Read(const char* fileName)
 {
@@ -123,7 +123,7 @@ void EIEdgeImage::SetLines2Grid()
 		// 计算直线段中点
 		lines_[i].Center(trans);
 
-		// 中点坐标去其相反数
+		// 中点坐标取其相反数
 		for(int j=0; j<2; j++)
 			trans[j] *= -1;
 	
@@ -146,7 +146,7 @@ void EIEdgeImage::SetLines2Grid()
  */
 int EIEdgeImage::Theta2Index(double theta)
 {
-	return (int) floor ((theta  *nDirections_) / (M_PI+1e-5));
+	return (int) floor ((theta  *  nDirections_) / (M_PI+1e-5)); // 可看出直线段的角度只在0-pi之间取值。
 }
 
 
@@ -157,6 +157,7 @@ int EIEdgeImage::Theta2Index(double theta)
  */
 double EIEdgeImage::Index2Theta(int index)
 {
+	// 后面多加的部分是为了让恢复的角度在相邻边界形成的角度中间，避免相邻两个index恢复的角度相同的处境
 	return ((index)*M_PI)/nDirections_ + M_PI/(2*nDirections_);
 }
 
@@ -271,6 +272,7 @@ void EIEdgeImage::ConstructDirectionImage(int index,Image<uchar>* image)
 	}
 }
 
+// 所有直线段长度加一起
 double EIEdgeImage::Length()
 {
 	double length = 0;

@@ -54,7 +54,7 @@ void LMDistanceImage::SetImage(EIEdgeImage& ei)
 }
 
 
-// 构建针对query map的三维距离变换积分图，而且是针对不同方向的
+// 构建针对query map的三维距离变换图，而且是针对不同方向的
 void LMDistanceImage::ConstructDTs(EIEdgeImage& ei)
 {
 	Image<uchar> image(width_,height_,false);
@@ -67,7 +67,7 @@ void LMDistanceImage::ConstructDTs(EIEdgeImage& ei)
 		dtImages_[i].Resize(width_,height_,false);
 		ei.ConstructDirectionImage(i, &image);
 
-		// dtImages_[i]保存着每个像素到相邻边的最小距离
+		// dtImages_[i]保存着每个像素到相邻边的最小距离， image的背景颜色为白色255，直线段为黑色0
 		DistanceTransform::CompDT(&image, &dtImages_[i], false);
 	}
 }
@@ -84,7 +84,7 @@ void LMDistanceImage::UpdateCosts()
 	float **buffers = new float*[nDirections_];
 	for (int i=0;i<nDirections_ ; i++)
 	{
-		// buffers[i]储存各方向distanceTransformImage的数据头指针
+		// buffers[i]储存某个方向distanceTransformImage的数据头指针
 		buffers[i] = (float*) dtImages_[i].data;
 	}
 	
@@ -95,7 +95,7 @@ void LMDistanceImage::UpdateCosts()
 		// 固定像素位置，遍历不同方向对应的二维距离变换图
 		for (int i=0 ; i<nDirections_ ; i++)
 		{
-			// costs保存了第k个像素位置上，各方向上对应的最小距离
+			// costs保存了第k个像素位置上，方向[i]上对应的最小距离，作为论文提到的初始值
 			costs[i] = buffers[i][k]; // buffers[i][k]表示第i个方向，第k个像素与最近边的最小距离
 
 			// 如果第i方向、第k个像素上的距离大于一个阈值maxCost，则costs[i]赋值为该阈值
@@ -103,11 +103,12 @@ void LMDistanceImage::UpdateCosts()
 				costs[i] = (float)maxCost_;
 		}
 
-		//前向遍历，directionCost_为连续两个方向之间的方向误差
+		// 前向遍历，directionCost_为连续两个方向之间的方向误差
+		// 同一位置上，若到具有方向i的直线段距离大于到具有方向i-1的直线段距离+directionCost_，则该位置上到具有方向i的直线段距离将被赋予此值
 		if (costs[0] > costs[nDirections_-1] + directionCost_)
 			costs[0] = costs[nDirections_-1] + directionCost_;
 		for (int i=1 ; i<nDirections_ ; i++)
-		{
+		{	
 			if (costs[i] > costs[i-1] + directionCost_)
 				costs[i] = costs[i-1] + directionCost_;
 		}
@@ -159,11 +160,14 @@ void LMDistanceImage::ConstructDIntegrals()
 {
 	double theta;
 	idtImages_.resize(nDirections_);
+
+	// 对每个方向都构造距离变换积分图
 	for (int i=0 ; i<nDirections_ ; i++)
 	{	
-		// 将方向索引转化为角度，并加一个偏置，该偏置为连续两个方向之间的夹角的一半
+		// 设定某个方向
 		theta = (i*M_PI)/nDirections_ + M_PI/(2*nDirections_);
-		idtImages_[i].CreateImage(width_,height_);	
+		idtImages_[i].CreateImage(width_,height_);		
+		// 使用2D distance transformed image[i]进行处理							
 		idtImages_[i].Construct(&dtImages_[i], (float)cos(theta), (float)sin(theta));
 	}
 }

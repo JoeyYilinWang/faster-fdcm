@@ -95,7 +95,7 @@ void main(int argc, char *argv[])
 
 	// line fitter对query edge map进行拟合，即对V进行直线段拟合
 	lf.FitLine(inputImage);
-
+	
 	
 
 	// FDCM Matching

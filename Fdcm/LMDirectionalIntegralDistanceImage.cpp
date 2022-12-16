@@ -55,20 +55,24 @@ void LMDirectionalIntegralDistanceImage::CreateImage(int width, int height)
 	iimage_.Resize(width+1,height+1);
 }
 
-
+// dx是指定方向的cos，dy是指定方向的sin。
 void LMDirectionalIntegralDistanceImage::Construct(Image<float> *image, float dx, float dy)
-{
+{	
+	// abs(dx) > abs(dy)表示直线段与x轴正向形成角度theta在此范围:
+	//  0 < theta < pi/4 或 3pi/4 < theta < pi
 	if (abs(dx) > abs(dy))
-	{
+	{	
+		// 根据theta所在区域，ds可正可负。theta为锐角ds为正，钝角为负
 		ds_ = dy / (dx + 1e-9f);
 		xindexed_ = 1;		
 	}
-	else
+	else  // 表示  pi/4 < theta < pi/2 或 pi/2 < theta < 3pi/4 
 	{
 		ds_ = dx / (dy + 1e-9f);
 		xindexed_ = 0;
 	}
-	// 计算正割，是cos的导数																																													
+
+	// 锐角对应的正割，即为cos的倒数
 	factor_ = sqrt(ds_*ds_ + 1);
 	ComputeIndices();
 	ComputeII(image);
@@ -84,15 +88,16 @@ void LMDirectionalIntegralDistanceImage::ComputeIndices()
 		delete[] indices_;
 	}
 
-
+	// 索引较长的部分
 	if (xindexed_)
 	{
 		indices_ = new int[width_];
 		indices_[0] = 0;
 
-		for (int i=0 ; i<width_;i++)
+		for (int i=0; i<width_; i++)
 		{
-			indices_[i] = (int)ceil(i*ds_-0.5);
+			// ceil(x)表示不小于x的最小整数
+			indices_[i] = (int)ceil(i*ds_-0.5); // ds根据情况会有正负（锐角为正，钝角为负），但绝对值小于1
 		}
 	}
 	else
@@ -132,6 +137,7 @@ void LMDirectionalIntegralDistanceImage::ComputeII(Image<float>* image)
 		int miny, maxy;
 		int py, cy;
 
+		// 锐角
 		if (indices_[width_-1]> 0 )
 		{
 			miny = -indices_[width_-1];
@@ -150,6 +156,7 @@ void LMDirectionalIntegralDistanceImage::ComputeII(Image<float>* image)
 				py = y+indices_[x-1];
 				cy = y+indices_[x];
 
+				// 
 				if (cy > 0 &&  cy < height_-1)
 				{
 					imRef(tiimage,x,cy) = imRef(tiimage,x-1,py)+imRef(image,x,cy);

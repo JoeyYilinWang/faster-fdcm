@@ -25,12 +25,14 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <climits>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 
 #include <opencv4/opencv2/highgui.hpp>
 #include <opencv4/opencv2/core.hpp>
 #include <opencv4/opencv2/imgproc.hpp>
 #include <opencv4/opencv2/imgproc/imgproc_c.h>
 using namespace cv;
+using namespace std;
 
 #include "Image.h"
 
@@ -217,8 +219,8 @@ Image<RGBMap> *ImageIO::LoadPPM(const char *name)
 	/* read header */
 	std::ifstream file(name, std::ios::in | std::ios::binary);
 	pnm_read(file, buf);
-	if (strncmp(buf, "P6", 2))
-		throw pnm_error();
+	// if (strncmp(buf, "P6", 2))
+	// 	throw pnm_error();
 
 	pnm_read(file, buf);
 	int width = atoi(buf);
@@ -278,35 +280,6 @@ void ImageIO::SaveImage(Image<T> *im, const char *name)
 	file.write((char *)imPtr(im, 0, 0), width * height * sizeof(T));
 }
  
- 
-/**
- * @brief 将输入图像转化为pgm格式的图像
- * @param filename 输出的pgm文件名字
- * @param srcImage 输入的IplImage*文件
- */
-void cvConvertImage2pgm(const char* filename, IplImage* srcImage)
-{
-	int width = srcImage->width;
-	int height = srcImage->height;
-	FILE *pgmPict;
-	int rSize = width * height;
-	int i, j;
-	pgmPict = fopen(filename, "w");
-	fprintf(pgmPict, "P5\n");
-	fprintf(pgmPict,"%d %d \n%d\n",width,height,255);
-	
-	unsigned char tmp = 0;
-	for (i = 0; i < srcImage->height; i++)
-	{
-		for (j = 0; j < srcImage->width; j++)
-		{
-			tmp = srcImage->imageData[i*srcImage->width+j*3];
-			fwrite((void*)&tmp,sizeof(unsigned char),1,pgmPict);
-		}
-	}
-	fclose(pgmPict);
-}
-
 
 
 #endif

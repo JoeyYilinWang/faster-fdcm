@@ -83,6 +83,8 @@ void LMLineMatcher::Match(LFLineFitter &lf,vector<LMDetWind> &detWind)
 	queryImage_.SetNumDirections(nDirections_);
 
 	queryImage_.Read(lf);
+
+	// 对queryImage进行尺度变换，但在OSM matching背景下，queryImage就是整张OSM地图，没必要尺度变换，因此将scale_设置为1
 	queryImage_.Scale(scale_);
 	queryDistanceImage_.Configure(directionCost_,maxCost_);
 	queryDistanceImage_.SetImage(queryImage_);
@@ -96,8 +98,9 @@ void LMLineMatcher::Match(LFLineFitter &lf,vector<LMDetWind> &detWind)
 
 	double minCost = 1e+10;
 
-	// matching
+	// 匹配部分
 	int counter = 0;
+	// 对模板集进行遍历。在OSM matching背景下，模板其实就一个。
 	for (int i=0 ; i<ndbImages_ ; i++)
 	{		
 		MatchBruteForce(dbImages_[i], i, iindices, indices, xIndices, yIndices, dIndices, sIndices, distances, counter, minCost);		
@@ -143,21 +146,25 @@ double LMLineMatcher::MatchBruteForce(EIEdgeImage& dbImage, int index, int* iind
 	double minx, miny, maxx, maxy;
 	int currentcount;
 
+	// 搜索过程中对尺度进行了处理，但在LMLineMatcher的构造函数中，minSearchScale_和maxSearchScale都设置为0.
 	for(int s = minSearchScale_  ; s<= maxSearchScale_ ; s++)	
-	{		
+	{	
+		// 在构造函数中设置baseSearchScale为1.2。s作为缩放的倍数，若s为负，则scale小于1，起到的结果则是缩小。若s为正，scale大于1，起到的结果是放大。
 		scale = pow(baseSearchScale_,1.0*s);
 		EIEdgeImage tdbImage;
 		tdbImage = dbImage;
 		tdbImage.Scale(scale);
-		factor = 1.0/pow(dbImage.Length(),bias_);
-		tdbImage.Boundary(minx, miny, maxx, maxy);
-		tdbImage.SetDirectionIndices();
+		factor = 1.0/pow(dbImage.Length(),bias_); // bias设置为1，factor为论文中计算d_{DCM}的1/n
+		tdbImage.Boundary(minx, miny, maxx, maxy); // 返回所有模板中直线段构成图像的边界
+		tdbImage.SetDirectionIndices(); // 返回所有直线段对应的方向索引
 
+		// 滑窗纵向平移
 		for (int y=-(int)miny; y<queryImage_.height_-(int)maxy; y += searchStepSize_)
 		{
+			// 滑窗先水平平移
 			for (int x=-(int)minx ; x<queryImage_.width_-(int)maxx ; x += searchStepSize_)	
 			{
-		
+				 
 				ltrans[0] = (double)x;
 				ltrans[1] = (double)y;				
 				cost = 0;				
@@ -174,6 +181,7 @@ double LMLineMatcher::MatchBruteForce(EIEdgeImage& dbImage, int index, int* iind
 				{
 					count++;
 
+					// 对当前模板所有直线段进行遍历计算cost
 					for (k=0 ; k<tdbImage.nLines_ ; k++)
 					{
 						line = tdbImage.lines_[k];
@@ -193,14 +201,15 @@ double LMLineMatcher::MatchBruteForce(EIEdgeImage& dbImage, int index, int* iind
 
 
 				if (cost<minCost*minCostRatio_)
-				{
-					xIndex[counter] = (int)ltrans[0];
-					yIndex[counter] = (int)ltrans[1];
-					dIndex[counter] = (i*M_PI)/nDirections_;
-					sIndex[counter] = scale;
-					distances[counter] = cost;
-					iindices[counter] = counter;
-					indices[counter++] = index;
+				{	
+					// counter用于计数cost小于阈值的匹配数量
+					xIndex[counter] = (int)ltrans[0]; // 匹配成功的x的索引
+					yIndex[counter] = (int)ltrans[1]; // 匹配成功的y的索引
+					dIndex[counter] = (i*M_PI)/nDirections_; // 
+					sIndex[counter] = scale; // 匹配成功的模板scale尺度
+					distances[counter] = cost; // 匹配成功的损失cost
+					iindices[counter] = counter; 
+					indices[counter++] = index; // 匹配成功的模板id索引
 
 					if (cost<minCost)
 						minCost = cost;
@@ -512,7 +521,9 @@ void LMLineMatcher::Init(const char* fileName)
 		dbImages_[i].SetNumDirections(nDirections_);
 		// 针对每个template都进行直线段读取，并根据量化角度重构其存储方式
 		dbImages_[i].Read(line.c_str());
-		// 模板按比例缩放，相应直线段也按相同比例缩放
+		// scale_是queryMap的尺度比例因子，db_scale_是模板的尺度比例因子。
+		// 至于为什么需要将两者相乘，是因为如果queryMap也是有尺度变换的，仅使用db_scale_作为尺度因子则模板相对于queryMap的大小就不正确了。
+		// 因为两者都是定值，因此是固定尺度。
 		dbImages_[i].Scale(scale_*db_scale_);
 	}
 	file.close();

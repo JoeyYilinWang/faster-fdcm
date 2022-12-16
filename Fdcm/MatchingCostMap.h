@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifndef _matching_cost_map_h_
 #define _matching_cost_map_h_
 
-#include "LineFit/MMFunction.h"
+#include "../LineFit/MMFunction.h"
 #include <vector>
 using namespace std;
 

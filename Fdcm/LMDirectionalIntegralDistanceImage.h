@@ -40,6 +40,8 @@ public:
 private:
 	void SafeRelease();
 	void ComputeIndices();
+
+	// 计算积分
 	void ComputeII(Image<float>* image);
 
 	Image<float> iimage_;

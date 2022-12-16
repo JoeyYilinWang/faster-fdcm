@@ -21,15 +21,15 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifndef _lm_display_h_
 #define _lm_display_h_
 
-#include "Image/Image.h"
-#include "Image/ImageIO.h"
-#include "Image/ImageDraw.h"
+#include "../Image/Image.h"
+#include "../Image/ImageIO.h"
+#include "../Image/ImageDraw.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <vector>
-#include "LMDetWind.h"
-#include "EIEdgeImage.h"
+#include "../Fdcm/LMDetWind.h"
+#include "../Fdcm/EIEdgeImage.h"
 using namespace std;
 
 class LMDisplay

@@ -23,11 +23,11 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 LFLineFitter::LFLineFitter()
 {
-	localWindSize_ = 50; //局部滑窗尺寸
-	smallLocalWindowSize_ = max(localWindSize_ / 10, 5); // why should we define a small local window size?
-	nMinEdges_ = 5;
+	localWindSize_ = 200; //局部滑窗尺寸
+	smallLocalWindowSize_ = max(localWindSize_ / 2, 5); 
+	nMinEdges_ = 50;
 	nMaxWindPoints_ = 4 * (localWindSize_ + 1) * (localWindSize_ + 1); //最大窗口点的数量，默认为4*51*51
-	minLength_ = 2;
+	minLength_ = 30;
 
 	nLinesToFitInStage_[0] = 300;
 	nLinesToFitInStage_[1] = 3000;

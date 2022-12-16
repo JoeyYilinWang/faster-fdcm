@@ -29,12 +29,12 @@ using namespace std;
 class LMDetWind
 {
 public:
-	int x_;
+	int x_; // 窗口坐标
 	int y_;
-	int width_;
+	int width_; // 窗口大小
 	int height_;
-	double cost_;
-	int count_;
+	double cost_; // 窗口对应计算的cost
+	int count_; 
 
 	inline LMDetWind &operator=(const LMDetWind &rhs);
 	inline bool operator==(const LMDetWind &other) const;

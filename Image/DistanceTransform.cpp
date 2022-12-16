@@ -30,6 +30,7 @@ void DistanceTransform::CompDT(const Image<uchar> *input,Image<float> *output,bo
 	int imageWidth = input->width();
 	int imageHeight = input->height();
 
+	// 2D距离变换图初始化，原始位置上有直线段的设置为0，其他位置为INF，表示无穷大
 	for(int y=0;y<imageHeight;y++)
 	{
 		for(int x=0;x<imageWidth;x++)
@@ -145,7 +146,7 @@ float* DistanceTransform::Update1DDTCostNN(float *f, const int n, int *ind)
 		}
 		k++;
 		v[k] = q;
-		z[k] = s;
+		z[k] = s; // z[k]一直保存最大的
 		z[k+1] = INF;
 		
 	}
@@ -194,7 +195,7 @@ void DistanceTransform::Update2DDTCost(Image<float> *output)
 		}
 		delete [] d;
 	}
-
+	// transform along rows
 	for (int y=0; y<imageHeight; y++) 
 	{
 		for( int x = 0; x<imageWidth; x++) 
@@ -202,6 +203,7 @@ void DistanceTransform::Update2DDTCost(Image<float> *output)
 			//f[ x ] = (double)cvGetReal2D( output, y, x);
 			f[ x ] = imRef(output,x,y);
 		}
+		// f保存着通过列遍历得到的最小距离的平方。通过再对行遍历，就可以得到点到最近边的距离了。
 		float *d = Update1DDTCost(f, imageWidth);
 		for (int x = 0; x < imageWidth; x++) 
 		{
@@ -215,9 +217,10 @@ void DistanceTransform::Update2DDTCost(Image<float> *output)
 
 }
 
-// dt of 1d function using squared distance
+// 计算一维点到最近线点的最近距离
 float* DistanceTransform::Update1DDTCost(float *f, const int n)
 {
+	// 真实输出
 	float *d = new float [n];
 	int *v = new int[n];
 	float *z = new float[n+1];
@@ -229,7 +232,10 @@ float* DistanceTransform::Update1DDTCost(float *f, const int n)
 
 	for (int q=1; q<=n-1; q++) 
 	{
-		float s = ((f[q]+square(q)) - (f[v[k]]+square(v[k]))) / (2*q - 2*v[k]);
+		// f[q]表示当前循环的像素上的值，只有0或INF。v[k]表示另外的索引，且一直小于q。
+		// f[q]和f[v[k]]若都为INF则两者会抵消。f[]不贡献距离值的计算，只用来判定。
+		// 
+		float s = ((f[q]+square(q)) - (f[v[k]]+square(v[k]))) / (2*q - 2*v[k]); 
 		while ( s <= z[k] ) 
 		{
 			k--;
@@ -249,6 +255,7 @@ float* DistanceTransform::Update1DDTCost(float *f, const int n)
 		{
 			k++;
 		}
+		// 计算距离的平方
 		d[q] = square(q-v[k]) + f[v[k]];
 
 	}

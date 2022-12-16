@@ -27,7 +27,7 @@ void LFLineSegment::Read(FILE* fin)
 	fscanf(fin, "%lf %lf", &ex_, &ey_);
 }
 
-// 计算直线段与像素坐标系X轴的角度，而且范围在[0,2pi]之间
+// 计算直线段与像素坐标系X轴的角度，而且范围在[0,pi]之间
 double LFLineSegment::Theta()
 {
 	double theta = atan2(ey_-sy_,ex_-sx_); // the angle of line segment

@@ -62,11 +62,11 @@ public:
 	int Theta2Index(double theta);
 	double Index2Theta(int index);
 
-	// 模板图像宽度
+	// 图像宽度
 	int width_;
-	// 模板图像高度
+	// 图像高度
 	int height_;
-	// 模板图像中包含的直线段数量
+	// 图像中包含的直线段数量
 	int	nLines_;
 	// 包含的方向
 	int nDirections_;

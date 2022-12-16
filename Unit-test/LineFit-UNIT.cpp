@@ -1,39 +1,28 @@
 #include <iostream>
 #include <string>
+#include <filesystem>
+
+
 #include "../Image/Image.h"
 #include "../Image/ImageIO.h"
 #include "../LineFit/LineFitter.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
-// 直线段拟合功能单元测试
-int main(int argc, char *argv[])
+int LineFitSingleImage(const char* inputImagePGM, const char* outputImagePGM, const char* outputTXT);
+int LineFitBatch(const char* inputFolderPGM, const char* outputFolderPGM, const char* outputFolderTXT);
+
+
+int LineFitSingleImage(const char* intputImagePGM, const char* outputImagePGM, const char* outputTXT)
 {
+	string imageNamePGM, outFileName, outImageName;
+	imageNamePGM = intputImagePGM;
+	outImageName = outputImagePGM;
+	outFileName = outputTXT;
 
-	
 	Image<uchar> *inputImage=NULL; // initialize a input image
-
-	// define line fitter
 	LFLineFitter lf;
-	
-    string imageNamePGM, transformedImagePGM, outFileName, outImageName;
-
-	if(argc != 4)
-	{
-		// std::cerr<<"[Syntax] fitline   input_edgeMap.pgm   output_line.txt   output_edgeMap.pgm"<<std::endl;
-		// exit(0);
-        cout <<"[Syntax] LineFit-UNIT inputImage.pgm  output_line.txt output_edgeMap.pgm"<<std::endl;
-        cout << "Switch to default parameters" << endl;
-        imageNamePGM = ("/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdge.pgm");
-        outFileName = ("/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdge.txt");
-        outImageName = ("/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdgeSimplified.pgm");
-	}
-    else
-    {
-        imageNamePGM = argv[1];
-        outFileName = argv[2];
-        outImageName = argv[3];
-    }
 
 	inputImage = ImageIO::LoadPGM(imageNamePGM.c_str());
 	if(inputImage==NULL)
@@ -58,4 +47,82 @@ int main(int argc, char *argv[])
 
 	//cvReleaseImage(&inputImage);
 	delete inputImage;
+	return 0;
+
+}
+
+// 直线段拟合功能单元测试
+int main(int argc, char *argv[])
+{
+
+	
+	Image<uchar> *inputImage=NULL; // initialize a input image
+	// define line fitter
+	LFLineFitter lf;
+	
+    string imageNamePGMfolder, outFileNamefolder, outImageNamefolder;
+
+	if(argc != 4)
+	{
+		// std::cerr<<"[Syntax] fitline   input_edgeMap.pgm   output_line.txt   output_edgeMap.pgm"<<std::endl;
+		// exit(0);
+        cout <<"[Syntax] LineFit-UNIT inputImage.pgm  output_line.txt output_edgeMap.pgm"<<std::endl;
+        cout << "Switch to default parameters" << endl;
+        imageNamePGMfolder = ("/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/tempImages/上海近崇明岛/PGMs");
+        outFileNamefolder= ("/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/tempImages/上海近崇明岛/TXTs");
+        outImageNamefolder = ("/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/tempImages/上海近崇明岛/LINEs");
+	}
+    else
+    {
+        imageNamePGMfolder = argv[1];
+        outFileNamefolder = argv[2];
+        outImageNamefolder = argv[3];
+    }
+
+	LineFitBatch(imageNamePGMfolder.c_str(), outImageNamefolder.c_str(), outFileNamefolder.c_str());
+	return 0;
 };
+
+
+/**
+ * @brief 批处理直线段拟合
+ * @param inputFolderPGM 保存pgm原始图像集的地址
+ * @param outputFolderPGM 保存直线段拟合后的pgm图像集合地址
+ * @param outputFolderTXT 
+ */
+int LineFitBatch(const char* inputFolderPGM, const char* outputFolderPGM, const char* outputFolderTXT)
+{
+	// 保存template原始pgm图像路径
+	vector<string> paths;
+	for (const auto & entry : fs::directory_iterator(inputFolderPGM))
+	{
+		paths.push_back(entry.path());
+	}
+	for (int i = 0; i < paths.size(); i++)
+	{
+		string outputPGM, outputTXT;
+
+		stringstream infolderName(paths[i]);
+		char split = '/';
+		vector<string> results;
+		string str;
+		
+		while (getline(infolderName, str, split))
+		{
+			results.push_back(str);
+		}
+		int npos = 0;
+		npos = results[results.size()-1].find(".pgm");
+		str = str.substr(0, npos);
+		
+		stringstream sa, sb;
+		sa << outputFolderPGM << "/" << str << "Lines" << ".pgm";
+		sb << outputFolderTXT << "/" << str << "Lines" << ".txt";
+		
+		outputPGM = sa.str();
+		outputTXT = sb.str();
+		LineFitSingleImage(paths[i].c_str(), outputPGM.c_str(), outputTXT.c_str());
+	}
+
+	return 0;
+}

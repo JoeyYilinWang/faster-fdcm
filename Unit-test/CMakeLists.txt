@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(Unit-test)
 
 set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++17")
 
 set(GeographicLib_INCLUDE_DIRS "/usr/local/include/GeographicLib")
 
@@ -22,9 +22,16 @@ add_library(LineFitter SHARED ../LineFit/LineFitter.cpp)
 add_library(LineSegment SHARED ../LineFit/LineSegment.cpp)
 add_library(DistanceTransform SHARED ../Image/DistanceTransform.cpp)
 add_library(LMDirectionalIntegralDistanceImage SHARED ../Fdcm/LMDirectionalIntegralDistanceImage.cpp)
+add_library(LMNonMaximumSuppression SHARED ../Fdcm/LMNonMaximumSuppression.cpp)
+
+add_library(LMLineMatcher SHARED ../Fdcm/LMLineMatcher.cpp)
+target_link_libraries(LMLineMatcher LMDistanceImage EIEdgeImage LMNonMaximumSuppression LineSegment MatchingCostMap)
+
+add_library(MatchingCostMap SHARED ../Fdcm/MatchingCostMap.cpp)
+add_library(LMDisplay SHARED ../Fdcm/LMDisplay.cpp)
 
 add_library(LMDistanceImage SHARED ../Fdcm/LMDistanceImage.cpp)
-target_link_libraries(LMDistanceImage LineSegment  LMDirectionalIntegralDistanceImage)
+target_link_libraries(LMDistanceImage LineSegment  LMDirectionalIntegralDistanceImage DistanceTransform)
 
 add_library(EIEdgeImage SHARED ../Fdcm/EIEdgeImage.cpp)
 
@@ -44,5 +51,16 @@ target_link_libraries(dtImage3dGen-UNIT DistanceTransform LineFitter LineSegment
 # test renderandlinefit 
 add_executable(RenderAndLineFit RenderAndLineFit.cpp)
 target_link_libraries(RenderAndLineFit Element LineFitter LineSegment DistanceTransform ${LINK_LIBS})
+
+# test window_matching-UNIT
+add_executable(Matcher-UNIT Matcher-UNIT.cpp)
+target_link_libraries(Matcher-UNIT LineFitter LMLineMatcher LMDisplay)
+
+# test videoCapture
+add_executable(VideoCap VideoCap.cpp)
+target_link_libraries(VideoCap ${OpenCV_LIBS})
+
+add_executable(templateListsConstruct OutputImages/tempImages/template_lists/template_list_construct.cpp)
+
 
 
