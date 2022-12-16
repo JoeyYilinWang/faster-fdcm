@@ -77,7 +77,7 @@ int MatchForSingleTemp(const char* tempName, const char* queryEdgeTXTName, const
         ImageIO::SavePPM(debugImage,outputname);
         delete debugImage;
     }
-
+    
     delete inputImage;
 
     return 0;
