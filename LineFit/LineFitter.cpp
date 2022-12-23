@@ -198,6 +198,8 @@ void LFLineFitter::FitLine(Image<unsigned char> *inputImage)
 			}
 			nEdges -= bestLs.nSupport_;
 			bestLs.len_ = sqrt((bestLs.sx_ - bestLs.ex_) * (bestLs.sx_ - bestLs.ex_) + (bestLs.sy_ - bestLs.ey_) * (bestLs.sy_ - bestLs.ey_));
+
+			// LFLineFitter的成员变量，类型为LFlineSegment*
 			outEdgeMap_[nLineSegments_] = bestLs;
 			nLineSegments_++;
 			

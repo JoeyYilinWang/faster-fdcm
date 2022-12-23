@@ -1,3 +1,7 @@
+
+#ifndef _video_capture_h_
+#define _video_capture_h_
+
 #include <cstdlib>
 #include <climits>
 #include <cstring>
@@ -178,3 +182,5 @@ void PrintFilesNameOfDirectory(string directory)
 	for (const auto & entry : fs::directory_iterator(directory))
 		cout << entry.path() << endl;
 }
+
+#endif

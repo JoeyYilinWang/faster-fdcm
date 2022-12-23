@@ -35,6 +35,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "../Fdcm/LMDisplay.h"
 #include "../Fdcm/LMNonMaximumSuppression.h"
 #include "../Fdcm/MatchingCostMap.h"
+#include "../Image/VideoCapture.h"
 //#include <windows.h>
 
 using namespace std;

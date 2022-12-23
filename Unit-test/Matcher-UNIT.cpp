@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "../LineFit/LineFitter.h"
 #include "../Fdcm/LMLineMatcher.h"
+#include "../Image/VideoCapture.h"
 
 #include <iostream>
 #include <string>
@@ -11,35 +12,32 @@ namespace fs = std::filesystem;
 
 int MatchForSingleTemp(const char* tempName, const char* queryEdgeName, const char* renderImageName);
 int MatchForTempBatch(const char* templatesFolderName, const char* queryEdgeName, const char* renderImageName);
+int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char* queryImagePPM);
+
 
 int main(int argc, char* argv[])
 {
-    string templateName;
-    string queryEdgeMapName;
-    string queryImageName;
+    string videoTemplate;
+    string queryImagePGM;
+    string queryImagePPM;
 
     if (argc != 4)
     {
-        cout << "[Syntax] Matcher-UNIT templateName.txt queryEdgeMapName.pgm queryImageName.ppm";
+        cout << "[Syntax] Matcher-UNIT templateVideo.mp4 queryImagePGM.pgm queryImagePPM.ppm";
         cout << "switch to default parameters";
-        templateName = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/tempImages/template_list.txt";
-        queryEdgeMapName = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNetlines.pgm";
-        queryImageName = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.ppm";
+        videoTemplate = "/home/joey/Videos/上海近崇明岛6300m分割.mp4";
+        queryImagePGM = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.pgm";
+        queryImagePPM = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.ppm";
         
     }
     else
     {
-        templateName = argv[1];
-        queryEdgeMapName = argv[2];
-        queryImageName = argv[3];
+        videoTemplate = argv[1];
+        queryImagePGM = argv[2];
+        queryImagePPM = argv[3];
     }
     
-    // MatchForSingleTemp(templateName.c_str(), queryEdgeMapName.c_str(), queryImageName.c_str());
-    const char* queryLinesTXT = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.txt";
-
-    const char* templatesFolderName = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/tempImages/template_lists";
-    MatchForTempBatch(templatesFolderName, queryLinesTXT, queryImageName.c_str());
-
+    MatchVideo(videoTemplate.c_str(), queryImagePGM.c_str(), queryImagePPM.c_str());
 }
 
 
@@ -77,7 +75,7 @@ int MatchForSingleTemp(const char* tempName, const char* queryEdgeTXTName, const
         ImageIO::SavePPM(debugImage,outputname);
         delete debugImage;
     }
-    
+
     delete inputImage;
 
     return 0;
@@ -98,4 +96,117 @@ int MatchForTempBatch(const char* templatesFolderName, const char* queryEdgeTXTN
     }
 
     return 0;
+}
+
+/**
+ * @brief 基于视频帧的匹配过程
+ * @param videoFileName 路网分割视频文件名（即模板视频）
+ * @param queryImagePGM queryImagePGM的pgm格式文件名
+ * @param queryImagePPM 用于显示匹配结果的图像路径
+ */
+int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char* queryImagePPM)
+{
+	// 对queryEdgeMapPGM进行直线段拟合
+	string queryImage = queryImagePGM;
+	string queryEdgeMap;
+	Image<uchar> *inputImage = NULL; // initialize a input image 
+	inputImage = ImageIO::LoadPGM(queryImage.c_str());
+
+	if(inputImage==NULL)
+	{
+		std::cerr<<"[ERROR] Fail in reading image "<< queryImagePGM <<std::endl;
+		exit(0);
+	}
+
+	LFLineFitter lf_queryImage, lf_template;
+
+	// 针对queryImage的linefitter
+	lf_queryImage.Init(); // line fit
+	// 配置文件读取
+	lf_queryImage.Configure("../Config/LFlineFitterConfig.txt");
+	// 对输入图像进行边线拟合，最终结果是lf_queryImage内部的outEdgeMap_成员变量保存的直线段信息，width_保存图像宽度，height_保存图像高度
+	lf_queryImage.FitLine(inputImage); 
+
+	// 读取视频帧并进行模板匹配
+	VideoCapture cap;
+    cap.open(videoFileName);
+
+	if (!cap.isOpened())//如果视频不能正常打开则返回
+		return 0;
+
+	Mat frame;
+	int frameID = 0;
+
+	long totalFrame = static_cast<int>(cap.get(CAP_PROP_FRAME_COUNT));
+	while (frameID < totalFrame)
+	{
+        cap >> frame;
+        Mat gray_image;
+        cvtColor(frame, gray_image, CV_BGR2GRAY);
+		if (gray_image.empty())//如果某帧为空则退出循环
+            break;
+		cout << "Current frameID = " << frameID << endl;
+
+		int width = gray_image.cols;
+		int height = gray_image.rows;
+
+		// 需要将frame转化为PGM后才能继续处理，因此一个中间文件存储template PGM
+		const char* templatePGM = "/home/joey/Projects/faster-fdcm/templatePGM.pgm";
+		std::ofstream file(templatePGM, std::ios::out | std::ios::binary); // 一次IO操作
+		file<< "P5\n" << width << " " << height << "\n" << UCHAR_MAX << "\n"; 
+		file.write((char *)gray_image.ptr<uchar>(0, 0), width * height * sizeof(uchar));
+		file.close();
+        
+		// 模板直线段拟合
+		lf_template.Init();
+		lf_template.Configure("../Config/LFlineFitterConfig.txt");
+		Image<uchar> *inputTemplate = NULL; // initialize a input image 
+		inputTemplate = ImageIO::LoadPGM(templatePGM);
+
+		if(inputImage==NULL)
+		{
+			std::cerr<<"[ERROR] Fail in reading image "<< templatePGM <<std::endl;
+			exit(0);
+		}
+		lf_template.FitLine(inputTemplate); 
+
+		LMLineMatcher lm;
+		lm.Configure("/home/joey/Projects/faster-fdcm/Unit-test/Config/LMlineMatcherConfig.txt");
+
+		// lm的Init()工作
+		int numOfTemplatesForEachTemplateImage = 1;
+		lm.ndbImages_ = numOfTemplatesForEachTemplateImage;
+		lm.dbImages_ = new EIEdgeImage[lm.ndbImages_];
+		for (int i = 0; i < lm.ndbImages_; i++)
+		{
+			EIEdgeImage * edgeImage = &lm.dbImages_[i];
+			edgeImage->SetNumDirections(lm.nDirections_);
+			edgeImage->width_ = lf_template.rWidth();
+			edgeImage->height_ = lf_template.rHeight();
+			edgeImage->nLines_ = lf_template.rNLineSegments();
+			edgeImage->lines_ = lf_template.rOutputEdgeMap();
+			edgeImage->SetLines2Grid();
+			edgeImage->SetDirections();
+			edgeImage->Scale(lm.scale_ * lm.db_scale_);
+		}
+
+		vector<LMDetWind> detWind;
+		lm.Match(lf_queryImage, detWind);
+		cout << "The Num of Matched successfully windows is: " << detWind.size() << endl;
+		if (queryImagePPM)
+    	{
+			string MatchedImages = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/MatchedImages/";
+			stringstream ss;
+			Image<RGBMap> *debugImage = ImageIO::LoadPPM(queryImagePPM);
+			LMDisplay::DrawDetWind(debugImage,detWind[0].x_,detWind[0].y_,detWind[0].width_,detWind[0].height_,RGBMap(255,0,0),4);
+			char outputname[256];
+			ss << MatchedImages << frameID << ".output.ppm";
+			// sprintf(outputname,"%s.output.ppm", queryImagePPM);
+			string outputname_str = ss.str();
+			ImageIO::SavePPM(debugImage,outputname_str.c_str());
+			delete debugImage;
+    	}
+		frameID++;
+	}
+	return 0;
 }

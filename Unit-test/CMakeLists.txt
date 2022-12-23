@@ -54,7 +54,7 @@ target_link_libraries(RenderAndLineFit Element LineFitter LineSegment DistanceTr
 
 # test window_matching-UNIT
 add_executable(Matcher-UNIT Matcher-UNIT.cpp)
-target_link_libraries(Matcher-UNIT LineFitter LMLineMatcher LMDisplay)
+target_link_libraries(Matcher-UNIT LineFitter LMLineMatcher LMDisplay ${LINK_LIBS})
 
 # test videoCapture
 add_executable(VideoCap VideoCap.cpp)

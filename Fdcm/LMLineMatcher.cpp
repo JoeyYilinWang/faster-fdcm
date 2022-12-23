@@ -939,3 +939,5 @@ void LMLineMatcher::SingleShapeDetectionWithVaryingQuerySize(LFLineFitter &lf,do
 	//cout<<"Non-maximum suppression ";
 	//cout<<"taking "<<setiosflags(ios::fixed)<<setprecision(6)<<(t2.QuadPart - t1.QuadPart)/(1.0*f.QuadPart)<<endl;	
 }
+
+

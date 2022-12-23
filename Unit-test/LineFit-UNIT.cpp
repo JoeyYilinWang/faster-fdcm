@@ -13,44 +13,6 @@ namespace fs = std::filesystem;
 int LineFitSingleImage(const char* inputImagePGM, const char* outputImagePGM, const char* outputTXT);
 int LineFitBatch(const char* inputFolderPGM, const char* outputFolderPGM, const char* outputFolderTXT);
 
-
-int LineFitSingleImage(const char* intputImagePGM, const char* outputImagePGM, const char* outputTXT)
-{
-	string imageNamePGM, outFileName, outImageName;
-	imageNamePGM = intputImagePGM;
-	outImageName = outputImagePGM;
-	outFileName = outputTXT;
-
-	Image<uchar> *inputImage=NULL; // initialize a input image
-	LFLineFitter lf;
-
-	inputImage = ImageIO::LoadPGM(imageNamePGM.c_str());
-	if(inputImage==NULL)
-	{
-		std::cerr<<"[ERROR] Fail in reading image "<< imageNamePGM <<std::endl;
-		exit(0);
-	}
-	
-	lf.Init(); // line fit
-	
-	// 配置文件读取
-	lf.Configure("../Config/LFlineFitterConfig.txt");
-	
-	// 对输入图像进行边线拟合
-	lf.FitLine(inputImage); 
-    
-	// 将被拟合出来的直线段进行图像化显示
-	lf.DisplayEdgeMap(inputImage,outImageName.c_str());	
-
-	// 拟合成功的直线用一个.txt文件便可保存
-	lf.SaveEdgeMap(outFileName.c_str());
-
-	//cvReleaseImage(&inputImage);
-	delete inputImage;
-	return 0;
-
-}
-
 // 直线段拟合功能单元测试
 int main(int argc, char *argv[])
 {
@@ -83,6 +45,48 @@ int main(int argc, char *argv[])
 	return 0;
 };
 
+/**
+ * @brief 单张图像的直线段拟合
+ * @param inputImagePGM 输入图像的路径
+ * @param outputImageLinesPGM 输出的线段拟合图像路径
+ * @param outputTXT 拟合线段信息文件路径
+ */
+int LineFitSingleImage(const char* intputImagePGM, const char* outputImageLinesPGM, const char* outputTXT)
+{
+	string imageNamePGM, outFileName, outImageName;
+	imageNamePGM = intputImagePGM;
+	outImageName = outputImageLinesPGM;
+	outFileName = outputTXT;
+
+	Image<uchar> *inputImage=NULL; // initialize a input image
+	LFLineFitter lf;
+
+	inputImage = ImageIO::LoadPGM(imageNamePGM.c_str());
+	if(inputImage==NULL)
+	{
+		std::cerr<<"[ERROR] Fail in reading image "<< imageNamePGM <<std::endl;
+		exit(0);
+	}
+	
+	lf.Init(); // line fit
+	
+	// 配置文件读取
+	lf.Configure("../Config/LFlineFitterConfig.txt");
+	
+	// 对输入图像进行边线拟合
+	lf.FitLine(inputImage); 
+    
+	// 将被拟合出来的直线段进行图像化显示
+	lf.DisplayEdgeMap(inputImage,outImageName.c_str());	
+
+	// 拟合成功的直线用一个.txt文件便可保存
+	lf.SaveEdgeMap(outFileName.c_str());
+
+	//cvReleaseImage(&inputImage);
+	delete inputImage;
+	return 0;
+
+}
 
 /**
  * @brief 批处理直线段拟合
