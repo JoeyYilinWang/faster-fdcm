@@ -20,7 +20,7 @@ int main(int argc,char *argv[])
         node_csv = "/home/joey/Projects/OSM_Analysis/output/node.csv";
         link_csv = "/home/joey/Projects/OSM_Analysis/output/link.csv";
         x = 0; y = 0; z = 5000;
-        outputImage = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdge.pgm";
+        outputImage = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.pgm";
 	}
     else
     {
@@ -112,7 +112,7 @@ int main(int argc,char *argv[])
     
     // 在binImage上画Links
     DrawLinesOfLinks(binImage, Links, Nodes);    
-
+    
     // Show image
     // cv::namedWindow("binImage", cv::WINDOW_NORMAL);
     // cv::imshow("binImage", binImage);

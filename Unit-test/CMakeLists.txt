@@ -48,10 +48,6 @@ target_link_libraries(LineFit-UNIT LineFitter LineSegment ${LINK_LIBS})
 add_executable(dtImage3dGen-UNIT dtImage3dGen-UNIT.cpp)
 target_link_libraries(dtImage3dGen-UNIT DistanceTransform LineFitter LineSegment LMDistanceImage EIEdgeImage)
 
-# test renderandlinefit 
-add_executable(RenderAndLineFit RenderAndLineFit.cpp)
-target_link_libraries(RenderAndLineFit Element LineFitter LineSegment DistanceTransform ${LINK_LIBS})
-
 # test window_matching-UNIT
 add_executable(Matcher-UNIT Matcher-UNIT.cpp)
 target_link_libraries(Matcher-UNIT LineFitter LMLineMatcher LMDisplay ${LINK_LIBS})

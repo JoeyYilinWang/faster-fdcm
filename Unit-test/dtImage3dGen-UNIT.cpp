@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
     {
         cout <<"[Syntax] dtImage3dGen-UNIT lineFittedImage.pgm"<<std::endl;
         cout << "Switch to default parameters" << endl;    
-        LineFittedImageName = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdgeSimplified.pgm";
+        LineFittedImageName = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNetlines.pgm";
         cout << "LineFittedImageName: " << LineFittedImageName << endl;
     }
     else
@@ -27,15 +27,13 @@ int main(int argc, char* argv[])
     }
 
     Image<uchar> *inputImage=NULL;
-    // inputImage = ImageIO::LoadPGM(LineFittedImageName.c_str());
-    inputImage = ImageIO::LoadPGM("/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdge.pgm");
-
-
-    // if(inputImage==NULL)
-	// {
-	// 	std::cerr<<"[ERROR] Fail in reading image "<<LineFittedImageName<<std::endl;
-	// 	exit(0);
-	// }
+    inputImage = ImageIO::LoadPGM(LineFittedImageName.c_str());
+ 
+    if(inputImage==NULL)
+	{
+		std::cerr<<"[ERROR] Fail in reading image "<<LineFittedImageName<<std::endl;
+		exit(0);
+	}
     
     Image<float> dtImage(inputImage->width(), inputImage->height(), true);
     Image<float> *ptrDTimage = &dtImage;
@@ -53,7 +51,7 @@ int main(int argc, char* argv[])
 
 
     // 从EdgeMap.txt中获取直线段信息
-    const char* edgeMapTXT = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/shanghaiEdge.txt";
+    const char* edgeMapTXT = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNetlines.txt";
     lf.LoadEdgeMap(edgeMapTXT);
 
     queryImage.Read(lf);

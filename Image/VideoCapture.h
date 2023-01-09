@@ -98,10 +98,10 @@ int GetFramefromVideo(const char* filename = "/home/joey/Videos/上海近崇明�
     while (frameID < totalFrame)
     {
         t = (double)cv::getTickCount();
-    
+
         //方法1：
         //cap >> frame;
-    
+		
         //方法2：
         //cap.read(frame);
     

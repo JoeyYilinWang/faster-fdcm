@@ -2,7 +2,6 @@
 #include <string>
 #include <filesystem>
 
-
 #include "../Image/Image.h"
 #include "../Image/ImageIO.h"
 #include "../LineFit/LineFitter.h"
@@ -17,7 +16,6 @@ int LineFitBatch(const char* inputFolderPGM, const char* outputFolderPGM, const 
 int main(int argc, char *argv[])
 {
 
-	
 	Image<uchar> *inputImage=NULL; // initialize a input image
 	// define line fitter
 	LFLineFitter lf;
@@ -51,10 +49,10 @@ int main(int argc, char *argv[])
  * @param outputImageLinesPGM 输出的线段拟合图像路径
  * @param outputTXT 拟合线段信息文件路径
  */
-int LineFitSingleImage(const char* intputImagePGM, const char* outputImageLinesPGM, const char* outputTXT)
+int LineFitSingleImage(const char* inputImagePGM, const char* outputImageLinesPGM, const char* outputTXT)
 {
 	string imageNamePGM, outFileName, outImageName;
-	imageNamePGM = intputImagePGM;
+	imageNamePGM = inputImagePGM;
 	outImageName = outputImageLinesPGM;
 	outFileName = outputTXT;
 
@@ -92,7 +90,7 @@ int LineFitSingleImage(const char* intputImagePGM, const char* outputImageLinesP
  * @brief 批处理直线段拟合
  * @param inputFolderPGM 保存pgm原始图像集的地址
  * @param outputFolderPGM 保存直线段拟合后的pgm图像集合地址
- * @param outputFolderTXT 
+ * @param outputFolderTXT 保存直线段拟合后的直线段信息集合地址
  */
 int LineFitBatch(const char* inputFolderPGM, const char* outputFolderPGM, const char* outputFolderTXT)
 {
