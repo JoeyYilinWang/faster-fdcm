@@ -63,5 +63,6 @@
         "variant": "cpp",
         "bit": "cpp",
         "filesystem": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/OSM"
 }

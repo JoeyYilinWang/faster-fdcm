@@ -7,7 +7,9 @@
                 "/usr/local/include/",
                 "/usr/include/",
                 "/usr/include/opencv4",
-                "${workspaceFolder}"
+                "/opt/ros/noetic/include",
+                "${workspaceFolder}",
+                "/usr/include/eigen3"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
