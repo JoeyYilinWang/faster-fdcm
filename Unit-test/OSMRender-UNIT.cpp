@@ -15,11 +15,11 @@ int main(int argc,char *argv[])
 	{
 		//std::cerr<<"[Syntax] render_unit node.csv link.csv x y height outputImage.pgm"<<std::endl;
         // exit(0);
-		cout <<"[Syntax] render_unit node.csv link.csv x y height outputImage.png"<<std::endl;
+		cout <<"[Syntax] render_unit node.csv link.csv x y height outputImage.pgm"<<std::endl;
         cout << "Switch to default parameters" << endl;
         node_csv = "/home/joey/Projects/OSM_Analysis/output/node.csv";
         link_csv = "/home/joey/Projects/OSM_Analysis/output/link.csv";
-        x = 0; y = 0; z = 5000;
+        x = 0; y = 0; z = 5000; 
         outputImage = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.pgm";
 	}
     else
@@ -103,10 +103,11 @@ int main(int argc,char *argv[])
     Nodes.World2Img(intrisicMat, distCoeffs, rVec, tVec);
     
     // 定义图像画布，设定图像分辨率
+    // 其实固定相机内参和畸变参数之后，相机成像效果就固定了，这里设置的分辨率其实就是设定的显示尺寸
     int w = 1280;
     int h = 720;
     cv::Mat binImage = cv::Mat::zeros(h, w, CV_8UC1);
-
+        
     // 在binImage上画节点
     // DrawNodes(binImage, w, h, Nodes);
     

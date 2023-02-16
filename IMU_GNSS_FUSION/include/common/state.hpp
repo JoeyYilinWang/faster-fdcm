@@ -10,8 +10,8 @@ namespace cg {
 
 constexpr double kG = 9.81007;
 
-constexpr int kStateDim = 15;
-constexpr int kNoiseDim = 12;
+constexpr int kStateDim = 15; // 设定状态有15个
+constexpr int kNoiseDim = 12; // 设定噪声有12个
 
 /**
  * @brief local or global angular error or rotation perturbation, ref: JoanSola ESKF 7.
@@ -21,38 +21,40 @@ constexpr int kNoiseDim = 12;
  * @ref JoanSola ESKF 7.
  *
  */
-enum ANGULAR_ERROR { LOCAL_ANGULAR_ERROR, GLOBAL_ANGULAR_ERROR };
+enum ANGULAR_ERROR { LOCAL_ANGULAR_ERROR, GLOBAL_ANGULAR_ERROR }; // 分为局部角度误差和全局角度误差
 
-using MatrixSD = Eigen::Matrix<double, kStateDim, kStateDim>;
+using MatrixSD = Eigen::Matrix<double, kStateDim, kStateDim>; // 15*15
 
 class State {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   // error-state, covariance matrix 
-  MatrixSD cov; 
+  MatrixSD cov; // 建立状态估计不确定性的协方差矩阵
 
-  // nominal-state
-  Eigen::Vector3d p_wb_; 
-  Eigen::Vector3d v_wb_;
-  Eigen::Matrix3d Rwb_;       
-  Eigen::Vector3d acc_bias;
-  Eigen::Vector3d gyr_bias;
+  // nominal-state，总共3*4+9 = 21个状态，对旋转进行特殊处理后为15个状态
+  Eigen::Vector3d p_wb_; // 表示world_to_body的三轴距离
+  Eigen::Vector3d v_wb_; // 表示world to body的三轴速度
+  Eigen::Matrix3d Rwb_; // 用3*3矩阵表示旋转（姿态），但实际上可转化为用3个元素表示的旋转形式，body to frame
+  Eigen::Vector3d acc_bias; // 加速度计的三轴偏移，因为使用ESKF，从而对加速度计和下面的角速度计的累计误差进行估计
+  Eigen::Vector3d gyr_bias; // 陀螺仪的三轴旋转偏移
 
   double timestamp;
 
-  static ANGULAR_ERROR kAngError;
+  static ANGULAR_ERROR kAngError; 
 
+  // 状态量初始化
   State() {
-    cov.setZero();
-
+    cov.setZero(); 
+    
     p_wb_.setZero();
     v_wb_.setZero();
     Rwb_.setIdentity();
     acc_bias.setZero();
     gyr_bias.setZero();
   }
-
+  
+  // 设置初始bias状态
   void set_bias(const Eigen::Vector3d &ba, const Eigen::Vector3d &bg) {
     acc_bias = ba;
     gyr_bias = bg;
@@ -60,8 +62,8 @@ class State {
 
   const Eigen::Isometry3d pose() const {
     Eigen::Isometry3d Twb; // 应该是三维变换
-    Twb.linear() = Rwb_;
-    Twb.translation() = p_wb_;
+    Twb.linear() = Rwb_; // rotation of body to world 
+    Twb.translation() = p_wb_; // translation of body to world
     return Twb;
   }
 
@@ -69,7 +71,7 @@ class State {
     Rwb_ = pose.linear();
     p_wb_ = pose.translation();
   }
-        
+
   static void update_pose(Eigen::Isometry3d &pose, const Eigen::Matrix<double, 6, 1> &delta_pose) {
     pose.translation().noalias() += delta_pose.head(3);
     pose.linear() = rotation_update(pose.rotation(), delta_rot_mat(delta_pose.tail(3)));
@@ -101,7 +103,7 @@ class State {
     vec.segment<3>(0) = v_wb_;
     vec.segment<3>(3) = acc_bias;
     vec.segment<3>(6) = gyr_bias;
-
+ 
     return vec;
   }
 
@@ -116,8 +118,8 @@ class State {
 
     vec.segment<3>(0) = p_wb_;
     vec.segment<3>(3) = v_wb_;
-    vec.segment<3>(6) = Utils::rot_mat_to_vec(Rwb_);
-    vec.segment<3>(9) = acc_bias;
+    vec.segment<3>(6) = Utils::rot_mat_to_vec(Rwb_); // 旋转转化为旋转向量
+    vec.segment<3>(9) = acc_bias; 
     vec.segment<3>(12) = gyr_bias;
 
     return vec;
@@ -169,7 +171,7 @@ class State {
     state.gyr_bias = this->gyr_bias + delta_x.block<3, 1>(12, 0);
     return state;
   }
-
+  
   Eigen::Matrix<double, kStateDim, 1> operator-(const State &rhs) const {
     Eigen::Matrix<double, kStateDim, 1> delta_x;
     delta_x.block<3, 1>(0, 0) = this->p_wb_ - rhs.p_wb_;

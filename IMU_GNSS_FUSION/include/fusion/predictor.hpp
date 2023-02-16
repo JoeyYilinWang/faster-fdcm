@@ -15,11 +15,15 @@ class Predictor {
 
   Predictor(StatePtr &state_ptr, double acc_n, double gyr_n, double acc_w, double gyr_w)
       : state_p_(state_ptr), imu_model_(acc_n, gyr_n, acc_w, gyr_w) {}
-
+                                 
   bool init(double ts_meas) { return inited_ = imu_model_.init(*state_p_, ts_meas, last_imu_ptr_); }
 
+  /**
+   * @brief 1.read imu data from sensor \\
+   * @brief 2.state prediction
+   */
   void imu_callback(const sensor_msgs::ImuConstPtr &imu_msg) {
-    ImuDataPtr imu_data_ptr = std::make_shared<ImuData>();
+    ImuDataPtr imu_data_ptr = std::make_shared<ImuData>(); //  
     imu_data_ptr->timestamp = imu_msg->header.stamp.toSec();
     imu_data_ptr->acc[0] = imu_msg->linear_acceleration.x;
     imu_data_ptr->acc[1] = imu_msg->linear_acceleration.y;

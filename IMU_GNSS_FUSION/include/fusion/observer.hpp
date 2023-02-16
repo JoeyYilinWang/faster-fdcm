@@ -12,7 +12,7 @@ class Observer : public Factor {
  public:
   Observer() = default;
 
-  Observer(const Observer &) = delete;
+  Observer(const Observer &) = delete; // 复制操作不允许
 
   virtual ~Observer() {}
 

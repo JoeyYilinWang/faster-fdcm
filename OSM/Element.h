@@ -99,6 +99,9 @@ class links
 
 void findLinkFromNodeCoord(link &Link, nodes &Nodes, pair<double, double> &coord);
 void findLinkToNodeCoord(link &Link, nodes &Nodes, pair<double, double> &coord);
-void AppendZcoord(nodes &Nodes, double &z);
+void NED2LongLatHeight(cv::Point3d point_NED, std::vector<double> origin_NED_GPS, std::vector<double>& point_GPS);
+void pixel2NED(cv::Point2d center_pixel, float flight_height, int scale, double cam_f, cv::Point3d& point_NED, cv::Point2d origin_NED_pixel);
+void pixel2NED(cv::Point2d center_pixel, float render_height, cv::Matx33d cam_K, cv::Point3d& point_NED);
+void pixel2GPS(cv::Point2d center_pixel, float render_height, cv::Matx33d cam_K, std::vector<double> origin_NED_GPS, std::vector<double>& point_GPS);
 
 #endif

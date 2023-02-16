@@ -9,11 +9,12 @@ namespace cg {
 
 constexpr int kMeasDim = 3;
 
+// Gps的数据结构
 struct GpsData {
-  double timestamp;
+  double timestamp; // 时间戳
 
   Eigen::Vector3d lla;  // Latitude in degree, longitude in degree, and altitude in meter
-  Eigen::Matrix3d cov;  // Covariance in m^2
+  Eigen::Matrix3d cov;  // Covariance in m^2, What is it?
 };
 using GpsDataPtr = std::shared_ptr<GpsData>;
 using GpsDataConstPtr = std::shared_ptr<const GpsData>;
@@ -21,7 +22,7 @@ using GpsDataConstPtr = std::shared_ptr<const GpsData>;
 class GNSS : public Observer {
  public:
   GNSS() = default;
-
+  
   virtual ~GNSS() {}
 
   void set_params(GpsDataConstPtr gps_data_ptr, const Eigen::Vector3d &I_p_Gps = Eigen::Vector3d::Zero()) {
@@ -29,12 +30,23 @@ class GNSS : public Observer {
     I_p_Gps_ = I_p_Gps;
   }
 
+  /**
+   * @brief compute measurement estimate based transition matrix of state prediciton
+   * @param mat_x transition matrix of state predicion 
+   * @return state 
+   */
   virtual Eigen::MatrixXd measurement_function(const Eigen::MatrixXd &mat_x) {
-    Eigen::Isometry3d Twb;
+    Eigen::Isometry3d Twb; // 变换矩阵
     Twb.matrix() = mat_x;
-    return Twb * I_p_Gps_;
+    return Twb * I_p_Gps_; 
   }
 
+  /**
+   * @brief compute measurement error between real measurement and measurement estimate
+   * @param mat_x transition matrix of state prediction 
+   * @param mat_z real measurement 
+   * @return measurement residual 
+   */
   virtual Eigen::MatrixXd measurement_residual(const Eigen::MatrixXd &mat_x, const Eigen::MatrixXd &mat_z) {
     return mat_z - measurement_function(mat_x);
   }
@@ -43,7 +55,7 @@ class GNSS : public Observer {
     Eigen::Isometry3d Twb;
     Twb.matrix() = mat_x;
 
-    Eigen::Matrix<double, kMeasDim, kStateDim> H;
+    Eigen::Matrix<double, kMeasDim, kStateDim> H; // H维度为[kMeasDim, kStateDim]，行数：kMeasDim, 列数：kStateDim，这里实际为3*15
     H.setZero();
     H.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
     H.block<3, 3>(0, 6) = -Twb.linear() * Utils::skew_matrix(I_p_Gps_);
@@ -81,11 +93,11 @@ class GNSS : public Observer {
                              const Eigen::Vector3d &point_lla,
                              Eigen::Vector3d *point_enu) {
     static GeographicLib::LocalCartesian local_cartesian;
-    local_cartesian.Reset(init_lla(0), init_lla(1), init_lla(2));
+    local_cartesian.Reset(init_lla(0), init_lla(1), init_lla(2)); // 以初始的坐标为原点
     local_cartesian.Forward(
         point_lla(0), point_lla(1), point_lla(2), point_enu->data()[0], point_enu->data()[1], point_enu->data()[2]);
   }
-
+  
   static inline void enu2lla(const Eigen::Vector3d &init_lla,
                              const Eigen::Vector3d &point_enu,
                              Eigen::Vector3d *point_lla) {
@@ -96,8 +108,8 @@ class GNSS : public Observer {
   }
 
  private:
-  Eigen::Vector3d init_lla_;
-  Eigen::Vector3d I_p_Gps_ = Eigen::Vector3d::Zero();
+  Eigen::Vector3d init_lla_;  // initial location in WGS64
+  Eigen::Vector3d I_p_Gps_ = Eigen::Vector3d::Zero(); 
 };
 using GNSSPtr = std::shared_ptr<GNSS>;
 

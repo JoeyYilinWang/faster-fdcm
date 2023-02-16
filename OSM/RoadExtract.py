@@ -17,5 +17,9 @@
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
 
 import osm2gmns as og
-net = og.getNetFromOSMFile("osmfile/上海.osm", network_types = ('auto'), POI=True)
+# OSM 子图区域，min_lat, min_longti, max_lat, max_longti within tuple
+region = (31.22585, 121.46745, 31.22937, 121.47374) 
+gps_center = ((31.22585+31.22937)/2, (121.46745+121.47374)/2)
+# 然而为保证子图元素连续性，肯定会增加一些或删除一些元素，所以上述提供的区域也只是一个大概的范围
+net = og.getNetFromOSMFile("/home/joey/Projects/OSM_Analysis/osmfile/上海.osm", network_types = ('auto'), POI=True, bbox=region)
 og.outputNetToCSV(net, output_folder="output")

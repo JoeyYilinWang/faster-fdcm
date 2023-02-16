@@ -15,11 +15,12 @@ ANGULAR_ERROR State::kAngError = ANGULAR_ERROR::LOCAL_ANGULAR_ERROR;
 
 class FusionNode {
  public:
-  FusionNode(ros::NodeHandle &nh) : viewer_(nh) {
+  FusionNode(ros::NodeHandle &nh) : viewer_(nh) 
+  { 
     double acc_n, gyr_n, acc_w, gyr_w;
-    nh.param("acc_noise", acc_n, 1e-2);
+    nh.param("acc_noise", acc_n, 1e-2); 
     nh.param("gyr_noise", gyr_n, 1e-4);
-    nh.param("acc_bias_noise", acc_w, 1e-6);
+    nh.param("acc_bias_noise", acc_w, 1e-6); 
     nh.param("gyr_bias_noise", gyr_w, 1e-8);
 
     const double sigma_pv = 10;
@@ -27,14 +28,18 @@ class FusionNode {
     const double sigma_yaw = 100 * kDegreeToRadian;
 
     ekf_ptr_ = std::make_unique<EKF>(acc_n, gyr_n, acc_w, gyr_w);
+
+    // 设定state的协方差矩阵初始值
     ekf_ptr_->state_ptr_->set_cov(sigma_pv, sigma_pv, sigma_rp, sigma_yaw, 0.02, 0.02);
 
     ekf_ptr_->observer_ptr_ = std::make_shared<GNSS>();
 
-    std::string topic_imu = "/imu/data";
-    std::string topic_gps = "/fix";
+    std::string topic_imu = "/imu/data"; // imu_data作为imu sensor输入话题
+    std::string topic_gps = "/fix"; // fix为GPS sensor的输入话题
 
+    // subscribe topic named "/imu/data", and call the function imu_callback
     imu_sub_ = nh.subscribe<sensor_msgs::Imu>(topic_imu, 10, boost::bind(&EKF::imu_callback, ekf_ptr_.get(), _1));
+    // subscribe topic named "fix", and call the function gps_callback
     gps_sub_ = nh.subscribe(topic_gps, 10, &FusionNode::gps_callback, this);
 
     // log files
@@ -60,6 +65,8 @@ class FusionNode {
   std::ofstream file_state_;
 };
 
+// Read the gps data from gps sensor 
+
 void FusionNode::gps_callback(const sensor_msgs::NavSatFixConstPtr &gps_msg) {
   if (gps_msg->status.status != 2) {
     printf("[cggos %s] ERROR: Bad GPS Message!!!\n", __FUNCTION__);
@@ -71,7 +78,7 @@ void FusionNode::gps_callback(const sensor_msgs::NavSatFixConstPtr &gps_msg) {
   gps_data_ptr->lla[0] = gps_msg->latitude;
   gps_data_ptr->lla[1] = gps_msg->longitude;
   gps_data_ptr->lla[2] = gps_msg->altitude;
-  gps_data_ptr->cov = Eigen::Map<const Eigen::Matrix3d>(gps_msg->position_covariance.data());
+  gps_data_ptr->cov = Eigen::Map<const Eigen::Matrix3d>(gps_msg->position_covariance.data()); // cov由message提供
 
   if (!ekf_ptr_->inited_) {
     if (!ekf_ptr_->init(gps_data_ptr->timestamp)) return;
@@ -79,15 +86,20 @@ void FusionNode::gps_callback(const sensor_msgs::NavSatFixConstPtr &gps_msg) {
     std::dynamic_pointer_cast<GNSS>(ekf_ptr_->observer_ptr_)->set_params(gps_data_ptr);
 
     printf("[cggos %s] System initialized.\n", __FUNCTION__);
-
+    
     return;
   }
-
+  
   std::cout << "---------------------" << std::endl;
 
+  // Twb为预测观测k-1->k
   const Eigen::Isometry3d &Twb = ekf_ptr_->state_ptr_->pose();
+
+  // GPS测量，且WGS64坐标转化为ENU坐标，是个3D向量
+  // 注意这里的用法，std::dynamic_pointer_cast<GNSS>指的是将Observer类型向GNSS类型转换
   const auto &p_G_Gps = std::dynamic_pointer_cast<GNSS>(ekf_ptr_->observer_ptr_)->g2l(gps_data_ptr);
 
+  //  测量误差=p_G_Gps - Twb.matrix()
   const auto &residual = ekf_ptr_->observer_ptr_->measurement_residual(Twb.matrix(), p_G_Gps);
 
   std::cout << "res: " << residual.transpose() << std::endl;
@@ -95,9 +107,11 @@ void FusionNode::gps_callback(const sensor_msgs::NavSatFixConstPtr &gps_msg) {
   const auto &H = ekf_ptr_->observer_ptr_->measurement_jacobian(Twb.matrix(), p_G_Gps);
 
   Eigen::Matrix<double, kStateDim, 3> K;
-  const Eigen::Matrix3d &R = gps_data_ptr->cov;
-  ekf_ptr_->update_K(H, R, K);
-  ekf_ptr_->update_P(H, R, K);
+  const Eigen::Matrix3d &R = gps_data_ptr->cov; 
+  ekf_ptr_->update_K(H, R, K); // 更新卡尔曼增益
+  ekf_ptr_->update_P(H, R, K); // 更新状态协方差
+
+  // 状态更新
   *ekf_ptr_->state_ptr_ = *ekf_ptr_->state_ptr_ + K * residual;
 
   std::cout << "acc bias: " << ekf_ptr_->state_ptr_->acc_bias.transpose() << std::endl;
@@ -125,9 +139,9 @@ void FusionNode::gps_callback(const sensor_msgs::NavSatFixConstPtr &gps_msg) {
 }  // namespace cg
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "imu_gnss_fusion");
+  ros::init(argc, argv, "imu_gnss_fusion"); // 节点名称为imu_gnss_fusion
 
-  ros::NodeHandle nh;
+  ros::NodeHandle nh; // 
   cg::FusionNode fusion_node(nh);
 
   ros::spin();

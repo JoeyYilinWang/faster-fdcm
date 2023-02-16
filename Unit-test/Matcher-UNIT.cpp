@@ -103,8 +103,9 @@ int MatchForTempBatch(const char* templatesFolderName, const char* queryEdgeTXTN
  * @param videoFileName 路网分割视频文件名（即模板视频）
  * @param queryImagePGM queryImagePGM的pgm格式文件名
  * @param queryImagePPM 用于显示匹配结果的图像路径
+ * @param center 生成包围框的中心像素坐标
  */
-int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char* queryImagePPM)
+int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char* queryImagePPM, vector<int>& center)
 {
 	// 对queryEdgeMapPGM进行直线段拟合
 	string queryImage = queryImagePGM;
@@ -126,7 +127,7 @@ int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char*
 	lf_queryImage.Configure("../Config/LFlineFitterConfig.txt");
 	// 对输入图像进行边线拟合，最终结果是lf_queryImage内部的outEdgeMap_成员变量保存的直线段信息，width_保存图像宽度，height_保存图像高度
 	lf_queryImage.FitLine(inputImage); 
-
+	
 	// 读取视频帧并进行模板匹配
 	VideoCapture cap;
     cap.open(videoFileName);
@@ -156,14 +157,14 @@ int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char*
 		file<< "P5\n" << width << " " << height << "\n" << UCHAR_MAX << "\n"; 
 		file.write((char *)gray_image.ptr<uchar>(0, 0), width * height * sizeof(uchar));
 		file.close();
-        
+
 		// 模板直线段拟合
 		lf_template.Init();
 		lf_template.Configure("../Config/LFlineFitterConfig.txt");
 		Image<uchar> *inputTemplate = NULL; // initialize a input image 
 		inputTemplate = ImageIO::LoadPGM(templatePGM);
 
-		if(inputImage==NULL)
+		if(inputTemplate==NULL)
 		{
 			std::cerr<<"[ERROR] Fail in reading image "<< templatePGM <<std::endl;
 			exit(0);
@@ -198,10 +199,11 @@ int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char*
 			string MatchedImages = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/MatchedImages/";
 			stringstream ss;
 			Image<RGBMap> *debugImage = ImageIO::LoadPPM(queryImagePPM);
+			// 在PPM模式的渲染图像中进行框取，按照左上角的坐标和宽高进行框取
 			LMDisplay::DrawDetWind(debugImage,detWind[0].x_,detWind[0].y_,detWind[0].width_,detWind[0].height_,RGBMap(255,0,0),4);
-			char outputname[256];
+			// 输出包围框的中心
+			center = {detWind[0].x_+detWind[0].width_/2, detWind[0].y_+detWind[0].height_/2};
 			ss << MatchedImages << frameID << ".output.ppm";
-			// sprintf(outputname,"%s.output.ppm", queryImagePPM);
 			string outputname_str = ss.str();
 			ImageIO::SavePPM(debugImage,outputname_str.c_str());
 			delete debugImage;

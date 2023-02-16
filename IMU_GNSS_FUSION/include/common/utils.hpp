@@ -120,7 +120,7 @@ class Utils {
     m4 += Eigen::Matrix4d::Identity() * q.w();
     return m4;
   }
-
+  
   static Eigen::Vector3d rot_mat_to_vec(const Eigen::Matrix3d &R) {
     Eigen::Vector3d vec_r;
     cv::Mat Rmat, rvec;

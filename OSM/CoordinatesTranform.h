@@ -41,8 +41,9 @@ using namespace cv;
 typedef std::vector<std::vector<double>> dataMat_NxN;
 
 // Read Matrix element from .csv file
+// 要注意的是CSV文件中第一个节点不一定是OSM子图左上角的节点
 void ReadCSV(std::string str_csv_file, dataMat_NxN &data_NxN)
-{
+{   
     std::ifstream in_file(str_csv_file, std::ios::in);
     std::string std_line;
     // iterate each line of .csv file through \n
@@ -112,6 +113,7 @@ void LongLatHeight2ENU(std::string csv_file_read, std::string csv_file_write, st
     }
     WriteCSV(csv_file_write, ENU_data);
 }
+
 
 /**
  * @brief transform coordinates of point in ENU frame to the coordinates in body frame
