@@ -1,4 +1,3 @@
-#pragma once
 
 #include <sensor_msgs/Imu.h>
 

@@ -22,7 +22,7 @@ class FusionNode {
     nh.param("gyr_noise", gyr_n, 1e-4);
     nh.param("acc_bias_noise", acc_w, 1e-6); 
     nh.param("gyr_bias_noise", gyr_w, 1e-8);
-
+    
     const double sigma_pv = 10;
     const double sigma_rp = 10 * kDegreeToRadian;
     const double sigma_yaw = 100 * kDegreeToRadian;

@@ -1,4 +1,3 @@
-#pragma once
 
 #include "common/utils.hpp"
 #include "estimator/kf.hpp"

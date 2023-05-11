@@ -1,4 +1,3 @@
-#pragma once
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -151,7 +150,7 @@ class State {
     cov.block<3, 3>(9, 9) = Eigen::Matrix3d::Identity() * sigma_ba * sigma_ba;
     cov.block<3, 3>(12, 12) = Eigen::Matrix3d::Identity() * sigma_bg * sigma_bg;
   }
-
+  
   State &operator=(const State &rhs) {
     if (this == &rhs) return *this;
     p_wb_ = rhs.p_wb_;

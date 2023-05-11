@@ -1,4 +1,3 @@
-#pragma once
 
 #include "fusion/observer.hpp"
 

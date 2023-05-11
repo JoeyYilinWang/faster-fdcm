@@ -1,4 +1,3 @@
-#pragma once
 
 #include "estimator/estimator.hpp"
 #include "fusion/predictor.hpp"

@@ -51,7 +51,7 @@ struct node
     double x_body;
     double y_body;
     double z_body;
-    double x_cam;
+    double x_cam; 
     double y_cam;
     double z_cam;
     cv::Point2d point_P;

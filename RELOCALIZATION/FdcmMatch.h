@@ -10,38 +10,11 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-int MatchForSingleTemp(const char* tempName, const char* queryEdgeName, const char* renderImageName, vector<double>& center_point);
+int MatchForSingleTemp(const char* tempName, const char* queryEdgeName, const char* renderImageName, vector<int>& center_point);
 int MatchForTempBatch(const char* templatesFolderName, const char* queryEdgeName, const char* renderImageName);
 int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char* queryImagePPM);
 
-
-int main(int argc, char* argv[])
-{
-    string videoTemplate;
-    string queryImagePGM;
-    string queryImagePPM;
-
-    if (argc != 4)
-    {
-        cout << "[Syntax] Matcher-UNIT templateVideo.mp4 queryImagePGM.pgm queryImagePPM.ppm";
-        cout << "switch to default parameters";
-        videoTemplate = "/home/joey/Videos/上海近崇明岛6300m分割.mp4";
-        queryImagePGM = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.pgm";
-        queryImagePPM = "/home/joey/Projects/faster-fdcm/Unit-test/OutputImages/queryImages/ShanghaiNet.ppm";
-        
-    }
-    else
-    {
-        videoTemplate = argv[1];
-        queryImagePGM = argv[2];
-        queryImagePPM = argv[3];
-    }
-    
-    MatchVideo(videoTemplate.c_str(), queryImagePGM.c_str(), queryImagePPM.c_str());
-}
-
-
-int MatchForSingleTemp(const char* tempName, const char* queryEdgeTXTName, const char* renderImageName, vector<double> & center_point)
+int MatchForSingleTemp(const char* tempName, const char* queryEdgeTXTName, const char* renderImageName, vector<int>& center_point)
 {
     string templateName, queryEdgeMapTXTName, queryImageName;
     templateName = tempName;
@@ -55,8 +28,8 @@ int MatchForSingleTemp(const char* tempName, const char* queryEdgeTXTName, const
     lf.Configure("/home/joey/Projects/faster-fdcm/Unit-test/Config/LFlineFitterConfig.txt");
     lm.Configure("/home/joey/Projects/faster-fdcm/Unit-test/Config/LMlineMatcherConfig.txt");
 
-    Image<uchar> *inputImage = ImageIO::LoadPGM(queryEdgeMapTXTName.c_str());
     lf.Init();
+    // Image<uchar> *inputImage = ImageIO::LoadPGM(templateName.c_str());
     // lf.FitLine(inputImage);
 
     lf.LoadEdgeMap(queryEdgeMapTXTName.c_str());
@@ -70,17 +43,15 @@ int MatchForSingleTemp(const char* tempName, const char* queryEdgeTXTName, const
     {
         Image<RGBMap> *debugImage = ImageIO::LoadPPM(queryImageName.c_str());
         LMDisplay::DrawDetWind(debugImage,detWind[0].x_,detWind[0].y_,detWind[0].width_,detWind[0].height_,RGBMap(255,0,0),4);
-		center_point.clear();
-		center_point.push_back(detWind[0].x_ + (detWind[0].width_  / 2));
-		center_point.push_back(detWind[0].y_ + (detWind[0].height_ / 2));
+        center_point = {detWind[0].x_+detWind[0].width_/2, detWind[0].y_+detWind[0].height_/2};
         char outputname[256];
         sprintf(outputname,"%s.output.ppm",queryImageName.c_str());
         ImageIO::SavePPM(debugImage,outputname);
         delete debugImage;
     }
 
-    delete inputImage;
-
+    // delete inputImage;
+    
     return 0;
 }
 
@@ -106,6 +77,7 @@ int MatchForTempBatch(const char* templatesFolderName, const char* queryEdgeTXTN
  * @param videoFileName 路网分割视频文件名（即模板视频）
  * @param queryImagePGM queryImagePGM的pgm格式文件名
  * @param queryImagePPM 用于显示匹配结果的图像路径
+ * @param center 生成包围框的中心像素坐标
  */
 int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char* queryImagePPM)
 {
@@ -203,7 +175,6 @@ int MatchVideo(const char* videoFileName, const char* queryImagePGM, const char*
 			Image<RGBMap> *debugImage = ImageIO::LoadPPM(queryImagePPM);
 			// 在PPM模式的渲染图像中进行框取，按照左上角的坐标和宽高进行框取
 			LMDisplay::DrawDetWind(debugImage,detWind[0].x_,detWind[0].y_,detWind[0].width_,detWind[0].height_,RGBMap(255,0,0),4);
-			// 输出包围框的中心
 			ss << MatchedImages << frameID << ".output.ppm";
 			string outputname_str = ss.str();
 			ImageIO::SavePPM(debugImage,outputname_str.c_str());

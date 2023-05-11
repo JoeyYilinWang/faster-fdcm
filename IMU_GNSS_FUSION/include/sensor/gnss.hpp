@@ -1,9 +1,9 @@
-#pragma once
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <GeographicLib/LocalCartesian.hpp>
 #include <memory>
+#include "../fusion/observer.hpp"
+#include "../common/state.hpp"
 
 namespace cg {
 
@@ -20,7 +20,7 @@ using GpsDataPtr = std::shared_ptr<GpsData>;
 using GpsDataConstPtr = std::shared_ptr<const GpsData>;
 
 class GNSS : public Observer {
- public:
+public:
   GNSS() = default;
   
   virtual ~GNSS() {}
@@ -76,7 +76,7 @@ class GNSS : public Observer {
     GNSS::lla2enu(init_lla_, gps_data_ptr->lla, &p_G_Gps);
     return p_G_Gps;
   }
-
+  
   /**
    * @brief local to glocal coordinate, convert ENU to WGS84 lla
    *
@@ -100,14 +100,15 @@ class GNSS : public Observer {
   
   static inline void enu2lla(const Eigen::Vector3d &init_lla,
                              const Eigen::Vector3d &point_enu,
-                             Eigen::Vector3d *point_lla) {
+                             Eigen::Vector3d *point_lla) 
+  {
     static GeographicLib::LocalCartesian local_cartesian;
     local_cartesian.Reset(init_lla(0), init_lla(1), init_lla(2));
     local_cartesian.Reverse(
         point_enu(0), point_enu(1), point_enu(2), point_lla->data()[0], point_lla->data()[1], point_lla->data()[2]);
   }
 
- private:
+  private:
   Eigen::Vector3d init_lla_;  // initial location in WGS64
   Eigen::Vector3d I_p_Gps_ = Eigen::Vector3d::Zero(); 
 };

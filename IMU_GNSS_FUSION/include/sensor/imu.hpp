@@ -1,4 +1,3 @@
-#pragma once
 
 #include <Eigen/Core>
 #include <deque>
@@ -55,7 +54,7 @@ class IMU {
       printf("[cggos %s] ERROR: Not Enough IMU data for Initialization!!!\n", __FUNCTION__);
       return false;
     }
-
+     
     last_imu_ptr = imu_buf_.back();
     if (std::abs(ts_meas - last_imu_ptr->timestamp) > 0.05) {
       printf("[cggos %s] ERROR: timestamps are not synchronized!!!\n", __FUNCTION__);
@@ -196,10 +195,10 @@ class IMU {
     printf("[cggos %s] mean_acc: (%f, %f, %f)!!!\n", __FUNCTION__, mean_acc[0], mean_acc[1], mean_acc[2]);
 
     Eigen::Vector3d sum_err2(0., 0., 0.);
-    for (const auto imu_data : imu_buf) sum_err2 += (imu_data->acc - mean_acc).cwiseAbs2(); 
-    const Eigen::Vector3d std_acc = (sum_err2 / (double)imu_buf.size()).cwiseSqrt(); // compute standard deviation
+    for (const auto imu_data : imu_buf) sum_err2 += (imu_data->acc - mean_acc).cwiseAbs2(); // 均值差的平方和
+    const Eigen::Vector3d std_acc = (sum_err2 / (double)imu_buf.size()).cwiseSqrt(); // 样本的标准差
 
-    // acc std limit: 3
+    // 如果向量中有个元素的标准差大于3.0，则表明不可靠
     if (std_acc.maxCoeff() > 3.0) {
       printf("[cggos %s] Too big acc std: (%f, %f, %f)!!!\n", __FUNCTION__, std_acc[0], std_acc[1], std_acc[2]);
       return false;

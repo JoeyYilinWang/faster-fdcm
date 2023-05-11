@@ -1,4 +1,3 @@
-#pragma once
 
 #include <eigen_conversions/eigen_msg.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
